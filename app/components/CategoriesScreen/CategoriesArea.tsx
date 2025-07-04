@@ -1,9 +1,9 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import useGlobalContextProvider from "../contextAPI"
+import {useGlobalContext} from "../contextAPI"
 import { faEllipsis } from "@fortawesome/free-solid-svg-icons"
 
 export default function CategoriesArea(){
-    const {isdark , DropDown} =useGlobalContextProvider();
+    const {isdark , DropDown} =useGlobalContext();
      const {openDropDown, setopenDropDown} = DropDown
     return(
         <div className={`${isdark?"bg-gray-900":"bg-slate-50"} h-[870px]`}>
@@ -20,7 +20,7 @@ export default function CategoriesArea(){
 }
 
 function CategoryCard({projectId} : {projectId: string}){
-    const {isdark , DropDown} =useGlobalContextProvider();
+    const {isdark , DropDown} =useGlobalContext();
      const {openDropDown, setopenDropDown , setActiveItemId} = DropDown;
 
      function handleDropDown(event : React.MouseEvent<HTMLDivElement>){

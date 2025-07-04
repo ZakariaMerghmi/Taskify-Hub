@@ -1,9 +1,9 @@
-import useGlobalContextProvider from "../contextAPI";
+import {useGlobalContext} from "../contextAPI";
 import React from "react";
 import LatestProjects from "./LatestProject";
 
 export default function RightSidebar() {
-    const { isdark , Mobileview} = useGlobalContextProvider();
+    const { isdark , Mobileview} = useGlobalContext();
     const {ismobileview , setIsmobileview} = Mobileview;
   return (
     <div className={`${ismobileview?"":"w-4/12"}  p-4 flex gap-4 flex-col`}>
@@ -14,7 +14,7 @@ export default function RightSidebar() {
 }
 
 function OverallProgress() {
-    const { isdark } = useGlobalContextProvider();
+    const { isdark } = useGlobalContext();
   return (
     <div className={`mt-1 rounded-md p-4 h-64 flex gap-8 flex-col items-center justify-center ${
         isdark ? `bg-blue-950` : `bg-white `

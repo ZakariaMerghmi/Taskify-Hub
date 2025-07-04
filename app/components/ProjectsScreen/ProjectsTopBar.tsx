@@ -1,14 +1,19 @@
 "use client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faBars } from "@fortawesome/free-solid-svg-icons";
-import useGlobalContextProvider from "../contextAPI";
+import {useGlobalContext} from "../contextAPI";
+import { useState } from "react";
 
 export default function ProjectsTopBar() {
-  const { isdark, Mobileview, Sidebar, projectwindow } = useGlobalContextProvider();
+  const { isdark, Mobileview, Sidebar, projectwindow } = useGlobalContext();
   const { OpenSidebar, setOpenSidebar } = Sidebar;
   const { ismobileview } = Mobileview;
   const { setopenNewProjectBox } = projectwindow;
+  
 
+
+
+  
   return (
     <div className={`flex justify-between items-center p-4 ${
       isdark ? "bg-blue-950" : "bg-white"

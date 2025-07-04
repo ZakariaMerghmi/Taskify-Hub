@@ -2,7 +2,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect } from 'react';
-import useGlobalContext from '../contextAPI';
+import {useGlobalContext} from '../contextAPI';
 
 type Priority = 'low' | 'medium' | 'high';
 

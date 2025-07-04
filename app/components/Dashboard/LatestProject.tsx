@@ -1,11 +1,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import useGlobalContextProvider from "../contextAPI";
+import {useGlobalContext} from "../contextAPI";
 import { faBarsProgress, faDiagramProject } from "@fortawesome/free-solid-svg-icons";
 import ProjectNewIcon from "@/app/assets/svgs/svgicons";
 
 
 export default function RightSidebar() {
-    const { isdark } = useGlobalContextProvider();
+    const { isdark } = useGlobalContext();
     const Projects:any=[]
   return (
     <div className={`${isdark ? "bg-blue-950" : "bg-white"}
@@ -28,7 +28,7 @@ export default function RightSidebar() {
 }
 
 function ProjectCard() {
-    const { isdark } = useGlobalContextProvider();
+    const { isdark } = useGlobalContext();
   return (
     <div className={`w-full py-5 rounded-md p-4 text-sm flex flex-col gap-6 ${
         isdark ? "bg-blue-950" : "bg-white"

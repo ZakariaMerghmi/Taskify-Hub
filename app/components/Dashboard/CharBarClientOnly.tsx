@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import useGlobalContextProvider from "../contextAPI";
+import {useGlobalContext} from "../contextAPI";
 import {
   BarChart,
   Bar,
@@ -19,7 +19,7 @@ interface TaskData {
 export default function CharBar() {
   const [isClient, setIsClient] = useState(false);
   const [mockData, setMockData] = useState<TaskData[]>([]);
-  const { isdark } = useGlobalContextProvider();
+  const { isdark } = useGlobalContext();
 
   useEffect(() => {
     setIsClient(true);

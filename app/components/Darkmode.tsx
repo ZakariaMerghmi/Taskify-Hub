@@ -1,12 +1,12 @@
 
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import useGlobalContextProvider from './contextAPI';
+import { useGlobalContext } from './contextAPI';
 import React from 'react';
 
 
 export default function Darkmode() {
-    const {isdark , setisdark} = useGlobalContextProvider();
+    const {isdark , setisdark} = useGlobalContext();
     return (
         <div className="">
            <div className={`${

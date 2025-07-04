@@ -1,10 +1,10 @@
 import Checkbox from '@mui/material/Checkbox';
-import useGlobalContextProvider from "../contextAPI";
+import {useGlobalContext} from "../contextAPI";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 
 export default function SingleTask() {
-  const { isdark } = useGlobalContextProvider();
+  const { isdark } = useGlobalContext();
   
   return (
     <div className={`p-3 rounded-lg ${

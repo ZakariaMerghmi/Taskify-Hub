@@ -1,8 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faPlus , faBars} from '@fortawesome/free-solid-svg-icons'
-import useGlobalContextProvider from "../contextAPI";
+import {useGlobalContext} from "../contextAPI";
 export default function CaregoriesTopBar(){
-    const {Mobileview , Sidebar , isdark} = useGlobalContextProvider();
+    const {Mobileview , Sidebar , isdark} = useGlobalContext();
     const {OpenSidebar , setOpenSidebar} = Sidebar;
     const {ismobileview} = Mobileview;
     return(

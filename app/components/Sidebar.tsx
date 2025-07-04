@@ -4,7 +4,9 @@ import { faArrowRightFromBracket, faBarsProgress, faDashboard, faFeather, faLaye
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState } from 'react'
 import Darkmode from './Darkmode';
-import useGlobalContextProvider from './contextAPI';
+import {useGlobalContext} from './contextAPI';
+import { getIconByName } from './contextAPI';
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = () => {
     const updateselectedItem = (index: number) => {
@@ -15,7 +17,7 @@ const Sidebar = () => {
         setMenuItems(updatedItems);
     }
     
-    const {Sidebar, isdark, DashboardItems} = useGlobalContextProvider();
+    const {Sidebar, isdark, DashboardItems} = useGlobalContext();
     const {OpenSidebar, setOpenSidebar} = Sidebar;
     const SideBarRef = useRef<HTMLDivElement>(null);
     const {menuItems, setMenuItems} = DashboardItems;
@@ -57,22 +59,22 @@ const Sidebar = () => {
             
             <div className='flex-1 flex flex-col gap-4 overflow-y-auto'>
                 <div className='text-[15px] flex flex-col gap-3 select-none'>
-                    {menuItems.map((item, index) => 
-                        <div 
-                            key={index}
-                            className={`flex items-center gap-3 cursor-pointer p-3 rounded-md transition-colors
-                            ${item.isSelected ? 'bg-blue-500 text-white' : 'text-blue-500 hover:bg-blue-100 hover:dark:bg-blue-900'}`}
-                            onClick={() => updateselectedItem(index)}
-                        >
-                            <FontAwesomeIcon 
-                                className={`text-lg ${item.isSelected ? 'text-white' : 'text-blue-500'}`}
-                                icon={item.icon}
-                                width={20}
-                                height={20}
-                            />
-                            <span className='text-[15px]'>{item.name}</span>
-                        </div>
-                    )}
+                   {menuItems.map((item, index) => 
+  <div
+    key={index}
+    className={`flex items-center gap-3 cursor-pointer p-3 rounded-md transition-colors
+      ${item.isSelected ? 'bg-blue-500 text-white' : 'text-blue-500 hover:bg-blue-100 hover:dark:bg-blue-900'}`}
+    onClick={() => updateselectedItem(index)}
+  >
+    <FontAwesomeIcon 
+      className={`text-lg ${item.isSelected ? 'text-white' : 'text-blue-500'}`}
+       icon={getIconByName(item.icon) || faQuestionCircle} // <--- Use the icon mapping here!
+      width={20}
+      height={20}
+    />
+    <span className='text-[15px]'>{item.name}</span>
+  </div>
+)}
                 </div>
             </div>
             

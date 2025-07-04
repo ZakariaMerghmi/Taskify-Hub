@@ -1,14 +1,15 @@
 'use client';
 
 import { useEffect } from 'react';
-import useGlobalContextProvider , {GlobalContextProvider} from '../components/contextAPI';
+import {useGlobalContext} from '../components/contextAPI';
 import Dashboard from '../components/Dashboard/Dashboard';
 import Sidebar from '../components/Sidebar';
 import Projects from '../components/ProjectsScreen/Projects';
 import Categories from "../components/CategoriesScreen/Categories"
+import { GlobalContextProvider } from '../components/contextAPI';
 
 export default function Home() {
-    const {isdark, DashboardItems} = useGlobalContextProvider();
+    const {isdark, DashboardItems} = useGlobalContext();
     const {menuItems } = DashboardItems;
     const selectesItem = menuItems.find((item)=>item.isSelected)
     let SelectedComponent = null

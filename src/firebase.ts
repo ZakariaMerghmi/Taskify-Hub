@@ -1,15 +1,17 @@
-// src/firebase.ts
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyB7pDfTqXswD7HFyXVqdyHQWIIXKPlJK0I",
+  authDomain: "dashboard-hub-c3565.firebaseapp.com",
+  projectId: "dashboard-hub-c3565",
+  storageBucket: "dashboard-hub-c3565.firebasestorage.app",
+  messagingSenderId: "273278768717",
+  appId: "1:273278768717:web:4a72bee01ec6728dd2ee04",
+  measurementId: "G-34615SLZ2J"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);

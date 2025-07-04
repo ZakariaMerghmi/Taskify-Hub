@@ -1,136 +1,199 @@
+// GlobalContextProvider.tsx
 "use client";
-import { faDashboard, faBarsProgress, faLayerGroup } from "@fortawesome/free-solid-svg-icons";
-import { useContext, useState, createContext, ReactNode, useEffect, Dispatch, SetStateAction } from "react";
 
-interface MenuItem {
-    name: string;
-    icon: any;
-    isSelected: boolean;
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from "react";
+
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import {
+  faTachometerAlt,
+  faBarsProgress,
+  faLayerGroup,
+} from "@fortawesome/free-solid-svg-icons";
+
+import { db } from "../../src/firebase";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  query,
+  orderBy,
+} from "firebase/firestore";
+
+// --- تعريف الواجهات ---
+
+export interface MenuItem {
+  name: string;
+  icon: string; // اسم الأيقونة كسلسلة نصية
+  isSelected: boolean;
 }
 
-interface GlobalContext {
-    isdark: boolean;
-    setisdark: (isdark: boolean) => void;
-    Sidebar: {
-        OpenSidebar: boolean;
-        setOpenSidebar: (OpenSidebar: boolean) => void;
-    };
-    Mobileview: {
-        ismobileview: boolean;
-        setIsmobileview: (ismobileview: boolean) => void;
-    };
-    DashboardItems: {
-        menuItems: MenuItem[];
-        setMenuItems: Dispatch<SetStateAction<MenuItem[]>>;
-    };
-    projectwindow: {
-        openNewProjectBox: boolean;
-        setopenNewProjectBox: (openNewProjectBox: boolean) => void;
-         openCreatedProjectBox: boolean;
-        setopenCreatedProjectBox: (openNewProjectBox: boolean) => void;
-    };
-    iconBox: {
-        openIconBox: boolean;
-        setOpenIconBox: (openIconBox: boolean) => void;
-    }; 
-    DropDown: {
-        openDropDown: boolean;
-        setopenDropDown: (openDropDown: boolean) => void;
-        activeItemId: string | null;
-        setActiveItemId: (id: string | null) => void;
-    }; 
-      taskwindow: { // Added separate task window states
-        openNewTaskBox: boolean;
-        setOpenNewTaskBox: (open: boolean) => void;
-    };
+export interface Project {
+  id: string;
+  name: string;
+  category: string;
+  icon: string; // اسم الأيقونة كسلسلة نصية
 }
 
-const GlobalContext = createContext<GlobalContext | undefined>(undefined);
-
-function GlobalContextProvider({ children }: { children: ReactNode }) {
-    const [isdark, setisdark] = useState<boolean>(false);
-    const [OpenSidebar, setOpenSidebar] = useState<boolean>(false);
-    const [ismobileview, setIsmobileview] = useState<boolean>(false);
-    const [openDropDown, setopenDropDown] = useState<boolean>(false);
-    const [activeItemId, setActiveItemId] = useState<string | null>(null);
-     const [openCreatedProjectBox, setopenCreatedProjectBox] = useState<boolean>(false);
-
-    const [menuItems, setMenuItems] = useState<MenuItem[]>([
-        { name: 'Dashboard', icon: faDashboard, isSelected: true },
-        { name: 'Projects', icon: faBarsProgress, isSelected: false },
-        { name: 'Categories', icon: faLayerGroup, isSelected: false },
-    ]);
-    const [openNewProjectBox, setopenNewProjectBox] = useState<boolean>(false);
-    const [openIconBox, setOpenIconBox] = useState<boolean>(false);
-    const [openNewTaskBox, setOpenNewTaskBox] = useState<boolean>(false);   
-
-    useEffect(() => {
-        function handleResize() {
-            if (typeof window !== 'undefined') {
-                setIsmobileview(window.innerWidth <= 1400);
-            }
-        }
-
-        handleResize();
-        if (typeof window !== 'undefined') {
-            window.addEventListener("resize", handleResize);
-            return () => {
-                window.removeEventListener("resize", handleResize);
-            };
-        }
-    }, []);
-
-    return (
-        <GlobalContext.Provider
-            value={{
-                isdark,
-                setisdark,
-                Sidebar: {
-                    OpenSidebar,
-                    setOpenSidebar,
-                },
-                Mobileview: {
-                    ismobileview,
-                    setIsmobileview,
-                },
-                DashboardItems: {
-                    menuItems,
-                    setMenuItems,
-                },
-                projectwindow: {
-                    openNewProjectBox,
-                    setopenNewProjectBox,
-                    openCreatedProjectBox,
-                    setopenCreatedProjectBox,
-                },
-                iconBox: {
-                    openIconBox,
-                    setOpenIconBox,
-                },
-                DropDown: {
-                    openDropDown,
-                    setopenDropDown,
-                    activeItemId,
-                    setActiveItemId,
-                },
-                 taskwindow: { 
-                    openNewTaskBox,
-                    setOpenNewTaskBox,
-                },
-            }}
-        >
-            {children}
-        </GlobalContext.Provider>
-    );
+interface GlobalContextType {
+  isdark: boolean;
+  setisdark: (value: boolean) => void;
+  Sidebar: {
+    OpenSidebar: boolean;
+    setOpenSidebar: (value: boolean) => void;
+  };
+  Mobileview: {
+    ismobileview: boolean;
+    setIsmobileview: (value: boolean) => void;
+  };
+  DashboardItems: {
+    menuItems: MenuItem[];
+    setMenuItems: Dispatch<SetStateAction<MenuItem[]>>;
+  };
+  projectwindow: {
+    openNewProjectBox: boolean;
+    setopenNewProjectBox: (value: boolean) => void;
+    openCreatedProjectBox: boolean;
+    setopenCreatedProjectBox: (value: boolean) => void;
+  };
+  iconBox: {
+    openIconBox: boolean;
+    setOpenIconBox: (value: boolean) => void;
+  };
+  DropDown: {
+    openDropDown: boolean;
+    setopenDropDown: (value: boolean) => void;
+    activeItemId: string | null;
+    setActiveItemId: (id: string | null) => void;
+  };
+  taskwindow: {
+    openNewTaskBox: boolean;
+    setOpenNewTaskBox: (value: boolean) => void;
+  };
+  projects: Project[];
+  addProject: (project: Omit<Project, "id">) => Promise<void>;
 }
 
-function useGlobalContext() {
-    const context = useContext(GlobalContext);
-    if (context === undefined) {
-        throw new Error('useGlobalContext must be used within a GlobalContextProvider');
+// --- دالة تحويل اسم الأيقونة إلى IconDefinition ---
+
+const iconMap: Record<string, IconDefinition> = {
+  "tachometer-alt": faTachometerAlt,
+  "bars-progress": faBarsProgress,
+  "layer-group": faLayerGroup,
+};
+
+export function getIconByName(name: string): IconDefinition | undefined {
+  return iconMap[name];
+}
+
+// --- إنشاء الـ Context ---
+
+const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
+
+// --- المزود ---
+
+export function GlobalContextProvider({ children }: { children: ReactNode }) {
+  const [isdark, setisdark] = useState(false);
+  const [OpenSidebar, setOpenSidebar] = useState(false);
+  const [ismobileview, setIsmobileview] = useState(false);
+  const [openDropDown, setopenDropDown] = useState(false);
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
+  const [openCreatedProjectBox, setopenCreatedProjectBox] = useState(false);
+
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([
+    { name: "Dashboard", icon: "tachometer-alt", isSelected: true },
+    { name: "Projects", icon: "bars-progress", isSelected: false },
+    { name: "Categories", icon: "layer-group", isSelected: false },
+  ]);
+
+  const [openNewProjectBox, setopenNewProjectBox] = useState(false);
+  const [openIconBox, setOpenIconBox] = useState(false);
+  const [openNewTaskBox, setOpenNewTaskBox] = useState(false);
+
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  const projectsCollection = collection(db, "projects");
+
+  // تحميل المشاريع من Firebase عند بداية التحميل
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const q = query(projectsCollection, orderBy("name", "asc"));
+        const snapshot = await getDocs(q);
+        const projectsData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as Omit<Project, "id">),
+        })) as Project[];
+        setProjects(projectsData);
+      } catch (error) {
+        console.error("Failed to fetch projects:", error);
+      }
     }
-    return context;
+    fetchProjects();
+
+    // إعداد الموبايل فيو حسب حجم الشاشة
+    function handleResize() {
+      if (typeof window !== "undefined") {
+        setIsmobileview(window.innerWidth <= 1400);
+      }
+    }
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // دالة إضافة مشروع جديد إلى Firebase
+  const addProject = async (project: Omit<Project, "id">) => {
+    try {
+      const docRef = await addDoc(projectsCollection, project);
+      setProjects((prev) => [...prev, { ...project, id: docRef.id }]);
+    } catch (error) {
+      console.error("Failed to add project:", error);
+    }
+  };
+
+  return (
+    <GlobalContext.Provider
+      value={{
+        isdark,
+        setisdark,
+        Sidebar: { OpenSidebar, setOpenSidebar },
+        Mobileview: { ismobileview, setIsmobileview },
+        DashboardItems: { menuItems, setMenuItems },
+        projectwindow: {
+          openNewProjectBox,
+          setopenNewProjectBox,
+          openCreatedProjectBox,
+          setopenCreatedProjectBox,
+        },
+        iconBox: { openIconBox, setOpenIconBox },
+        DropDown: { openDropDown, setopenDropDown, activeItemId, setActiveItemId },
+        taskwindow: { openNewTaskBox, setOpenNewTaskBox },
+        projects,
+        addProject,
+      }}
+    >
+      {children}
+    </GlobalContext.Provider>
+  );
 }
 
-export { GlobalContextProvider };
-export default useGlobalContext;
+// --- هوك لاستخدام السياق ---
+
+export function useGlobalContext() {
+  const context = useContext(GlobalContext);
+  if (!context) {
+    throw new Error("useGlobalContext must be used within GlobalContextProvider");
+  }
+  return context;
+}

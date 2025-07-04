@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react'
-import useGlobalContextProvider from '../contextAPI';
+import {useGlobalContext} from '../contextAPI';
 import { faAngleDown, faBars, faClose, faSearch } from '@fortawesome/free-solid-svg-icons';
 import SearchBar from '../SearchBar';
 import Statistics from './Statistics';
@@ -9,7 +9,7 @@ import CharBar from './CharBar';
 import RecentTasks from './RacentTasks';
 
 const Dashboard = () => {
-    const {isdark, Mobileview, Sidebar} = useGlobalContextProvider();
+    const {isdark, Mobileview, Sidebar} = useGlobalContext();
     const {ismobileview} = Mobileview;
     const {OpenSidebar} = Sidebar;
 
@@ -40,7 +40,7 @@ export default Dashboard;
 
 function TopBar() {
     const [searchBar, setSearchBar] = React.useState(false);
-    const {isdark , Sidebar} = useGlobalContextProvider();
+    const {isdark , Sidebar} = useGlobalContext();
     const {OpenSidebar , setOpenSidebar} = Sidebar;
     
     return (

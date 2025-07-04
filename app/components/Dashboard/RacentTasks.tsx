@@ -1,5 +1,5 @@
 "use client";
-import useGlobalContextProvider from "../contextAPI";
+import {useGlobalContext} from "../contextAPI";
 import { useEffect, useState } from "react";
 
 
@@ -52,7 +52,7 @@ export default function RecentTasks() {
    // }
   ];
   
-  const {isdark} = useGlobalContextProvider();
+  const {isdark} = useGlobalContext();
 
   
   if (currentWidth === 0) {
@@ -116,7 +116,7 @@ export default function RecentTasks() {
 
 function Task({recentTaskprop, currentWidth}: {recentTaskprop: RecentTask, currentWidth: number}) {
   const {TaskName, Createdat, ProjectName, status} = recentTaskprop;
-  const {isdark , Mobileview} = useGlobalContextProvider();
+  const {isdark , Mobileview} = useGlobalContext();
   
   const getStatusColor = (status: string) => {
     return status === "Completed" ? "text-green-500" : "text-orange-500";

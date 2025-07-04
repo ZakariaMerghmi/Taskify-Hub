@@ -1,7 +1,7 @@
 "use client";
 import { faDiagramProject, faLayerGroup, faList, faListCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import useGlobalContextProvider from "../contextAPI";
+import {useGlobalContext }from "../contextAPI";
 import { useEffect, useState } from "react";
 
 interface StatisticsCard{
@@ -44,7 +44,7 @@ export default function Statistics() {
     }
   ];
 
-  const {isdark} = useGlobalContextProvider();
+  const {isdark} = useGlobalContext();
   
   
   if (currentWidth === 0) {

@@ -1,11 +1,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import useGlobalContextProvider from "./contextAPI";
+import {useGlobalContext} from "./contextAPI";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import React, { useEffect, useRef } from "react";
 
 
 export default function SearchBar() {
-    const { isdark } = useGlobalContextProvider();
+    const { isdark } = useGlobalContext();
     const inputRef =useRef<HTMLInputElement>(null);
     useEffect(() => {
         inputRef.current?.focus();
