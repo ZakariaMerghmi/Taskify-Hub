@@ -112,7 +112,7 @@ function ProjectWindow({ project }: { project: any | null }) {
                                 />
                             </div>
                         </div>
-                        <TaskArea project={project} />
+                        <TaskArea  />
                     </div>
                 </div>
             </div>

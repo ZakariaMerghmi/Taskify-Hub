@@ -67,13 +67,29 @@ useEffect(() => {
   }, []);
 
     return (
-    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4 m-10`}>
-      {projects.map((project) => (
-        <ProjectCard key={project.id} project={project} setSelectedProject={setSelectedProject} />
-
-      ))}
+    <div className={`${isdark ? "bg-gray-900" : "bg-slate-50"} h-[870px]`}>
+      {projects.length === 0 ? (
+        <div
+          className={`text-center italic text-sm mt-10 ${
+            isdark ? "text-slate-50" : "text-gray-600"
+          }`}
+        >
+          No projects yet. Click “Add New” to create one.
+        </div>
+      ) : (
+        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4`}>
+          {projects.map((project) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              setSelectedProject={setSelectedProject}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
+
 }
 
 

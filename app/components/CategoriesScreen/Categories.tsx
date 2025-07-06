@@ -1,5 +1,6 @@
 import {useGlobalContext} from "../contextAPI"
 import DropDown from "../ProjectsScreen/DropDown"
+import { AddCategoryModal } from "./AddCategoryModal"
 import CategoriesArea from "./CategoriesArea"
 import CategoriesTopBar from "./CategoriesTopBar"
 
@@ -12,6 +13,7 @@ export default function Categories(){
                }`}>
                    <DropDown/>
                    <CategoriesTopBar/>
+                   <AddCategoryModal/>
                    <CategoriesArea/>
                </div>
 

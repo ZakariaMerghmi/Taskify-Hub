@@ -1,4 +1,3 @@
-// GlobalContextProvider.tsx
 "use client";
 
 import React, {
@@ -12,8 +11,6 @@ import React, {
 } from "react";
 
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import {
   faTachometerAlt,
   faBarsProgress,
@@ -29,11 +26,11 @@ import {
   orderBy,
 } from "firebase/firestore";
 
-// --- تعريف الواجهات ---
+// --- Interfaces ---
 
 export interface MenuItem {
   name: string;
-  icon: string; // اسم الأيقونة كسلسلة نصية
+  icon: string;
   isSelected: boolean;
 }
 
@@ -41,8 +38,27 @@ export interface Project {
   id: string;
   name: string;
   category: string;
-  icon: string; // اسم الأيقونة كسلسلة نصية
+  icon: string;
 }
+
+export interface Category {
+  id: string;
+  name: string;
+}
+
+// --- Icon Mapping ---
+
+const iconMap: Record<string, IconDefinition> = {
+  "tachometer-alt": faTachometerAlt,
+  "bars-progress": faBarsProgress,
+  "layer-group": faLayerGroup,
+};
+
+export function getIconByName(name: string): IconDefinition | undefined {
+  return iconMap[name];
+}
+
+// --- Global Context Type ---
 
 interface GlobalContextType {
   isdark: boolean;
@@ -79,27 +95,22 @@ interface GlobalContextType {
     openNewTaskBox: boolean;
     setOpenNewTaskBox: (value: boolean) => void;
   };
+  CategoryWindow: {
+    showAddCategoryBox: boolean;
+    setShowAddCategoryBox: (value: boolean) => void;
+  };
+  CategoryData: {
+    categories: Category[];
+    addCategory: (name: string) => Promise<void>;
+    setCategoryData: Dispatch<SetStateAction<Category[]>>;
+  };
   projects: Project[];
   addProject: (project: Omit<Project, "id">) => Promise<void>;
 }
 
-// --- دالة تحويل اسم الأيقونة إلى IconDefinition ---
-
-const iconMap: Record<string, IconDefinition> = {
-  "tachometer-alt": faTachometerAlt,
-  "bars-progress": faBarsProgress,
-  "layer-group": faLayerGroup,
-};
-
-export function getIconByName(name: string): IconDefinition | undefined {
-  return iconMap[name];
-}
-
-// --- إنشاء الـ Context ---
+// --- Context Setup ---
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
-
-// --- المزود ---
 
 export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const [isdark, setisdark] = useState(false);
@@ -108,22 +119,34 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const [openDropDown, setopenDropDown] = useState(false);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [openCreatedProjectBox, setopenCreatedProjectBox] = useState(false);
-
+  const [showAddCategoryBox, setShowAddCategoryBox] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
     { name: "Dashboard", icon: "tachometer-alt", isSelected: true },
     { name: "Projects", icon: "bars-progress", isSelected: false },
     { name: "Categories", icon: "layer-group", isSelected: false },
   ]);
-
   const [openNewProjectBox, setopenNewProjectBox] = useState(false);
   const [openIconBox, setOpenIconBox] = useState(false);
   const [openNewTaskBox, setOpenNewTaskBox] = useState(false);
-
   const [projects, setProjects] = useState<Project[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const projectsCollection = collection(db, "projects");
+  const categoriesCollection = collection(db, "categories");
 
-  // تحميل المشاريع من Firebase عند بداية التحميل
+  // Add Category
+  const addCategory = async (name: string) => {
+    if (name.trim() === "") return;
+    try {
+      const docRef = await addDoc(categoriesCollection, { name });
+      const newCategory: Category = { id: docRef.id, name };
+      setCategories((prev) => [...prev, newCategory]);
+    } catch (error) {
+      console.error("Failed to add category:", error);
+    }
+  };
+
+  // Fetch data & responsive mobile view handler
   useEffect(() => {
     async function fetchProjects() {
       try {
@@ -138,9 +161,23 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
         console.error("Failed to fetch projects:", error);
       }
     }
-    fetchProjects();
 
-    // إعداد الموبايل فيو حسب حجم الشاشة
+    async function fetchCategories() {
+      try {
+        const snapshot = await getDocs(categoriesCollection);
+        const categoriesData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as Omit<Category, "id">),
+        })) as Category[];
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    }
+
+    fetchProjects();
+    fetchCategories();
+
     function handleResize() {
       if (typeof window !== "undefined") {
         setIsmobileview(window.innerWidth <= 1400);
@@ -152,7 +189,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // دالة إضافة مشروع جديد إلى Firebase
+  // Add Project
   const addProject = async (project: Omit<Project, "id">) => {
     try {
       const docRef = await addDoc(projectsCollection, project);
@@ -176,9 +213,23 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
           openCreatedProjectBox,
           setopenCreatedProjectBox,
         },
+        CategoryWindow: {
+          showAddCategoryBox,
+          setShowAddCategoryBox,
+        },
         iconBox: { openIconBox, setOpenIconBox },
-        DropDown: { openDropDown, setopenDropDown, activeItemId, setActiveItemId },
+        DropDown: {
+          openDropDown,
+          setopenDropDown,
+          activeItemId,
+          setActiveItemId,
+        },
         taskwindow: { openNewTaskBox, setOpenNewTaskBox },
+        CategoryData: {
+          categories,
+          addCategory,
+          setCategoryData: setCategories,
+        },
         projects,
         addProject,
       }}
@@ -188,7 +239,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// --- هوك لاستخدام السياق ---
+// --- Custom Hook ---
 
 export function useGlobalContext() {
   const context = useContext(GlobalContext);
