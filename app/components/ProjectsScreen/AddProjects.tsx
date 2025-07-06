@@ -20,14 +20,13 @@ type AddProjectProps = {
 };
 
 export default function AddProject({ onAdd }: AddProjectProps) {
-  const { isdark, projectwindow, iconBox, addProject } = useGlobalContext();
+  const { isdark, projectwindow, iconBox, addProject, CategoryData } = useGlobalContext();
   const { openNewProjectBox, setopenNewProjectBox } = projectwindow;
   const { openIconBox, setOpenIconBox } = iconBox;
+  const { categories } = CategoryData; // Get categories from context
 
   const [projectName, setProjectName] = useState("");
   const [category, setCategory] = useState("");
-
-
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -62,26 +61,25 @@ export default function AddProject({ onAdd }: AddProjectProps) {
   }, [openNewProjectBox]);
 
   const handleIconSelect = (iconName: string) => {
-  if (!iconMap[iconName]) {
-    console.warn("Unknown icon selected:", iconName);
-    return;
-  }
-  setSelectedIcon(iconName);
-  setOpenIconBox(false);
-};
-
+    if (!iconMap[iconName]) {
+      console.warn("Unknown icon selected:", iconName);
+      return;
+    }
+    setSelectedIcon(iconName);
+    setOpenIconBox(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!projectName.trim() || category.length === 0 || !selectedIcon) return;
+    if (!projectName.trim() || !category || !selectedIcon) return;
 
     setLoading(true);
     try {
-     await addProject({
-  name: projectName.trim(),
-  category, // now an array
-  icon: selectedIcon!,
-});
+      await addProject({
+        name: projectName.trim(),
+        category: category, // Use selected category
+        icon: selectedIcon!,
+      });
 
       setProjectName("");
       setCategory("");
@@ -157,26 +155,34 @@ export default function AddProject({ onAdd }: AddProjectProps) {
           </div>
 
           {/* Category */}
-   <div className="flex flex-col gap-2 mx-3">
-  <label htmlFor="project-category" className="text-sm opacity-80">
-    Categories
-  </label>
-  <select
-    id="project-category"
-    value={category}
-    onChange={(e) => setCategory(e.target.value)}
-    className={`
-      p-3 text-[13px] outline-none border border-gray-200
-      rounded-md ${isdark ? "bg-blue-950 text-white" : "bg-white text-black opacity-60"}
-    `}
-    disabled={loading}
-  >
-    <option value="">Select a Category...</option>
-    <option value="category1">Category 1</option>
-    <option value="category2">Category 2</option>
-    
-  </select>
-</div>
+          <div className="flex flex-col gap-2 mx-3">
+            <label htmlFor="project-category" className="text-sm opacity-80">
+              Categories
+            </label>
+            <select
+              id="project-category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className={`
+                p-3 text-[13px] outline-none border border-gray-200
+                rounded-md ${isdark ? "bg-blue-950 text-white" : "bg-white text-black opacity-60"}
+              `}
+              disabled={loading}
+            >
+              <option value="">Select a Category...</option>
+              {categories && categories.length > 0 ? (
+                categories.map((cat) => (
+                  <option key={cat.id} value={cat.name}>
+                    {cat.name}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>
+                  No categories available - Create one first
+                </option>
+              )}
+            </select>
+          </div>
 
           {/* Icon Picker Button */}
           <div className="px-3">
@@ -187,7 +193,7 @@ export default function AddProject({ onAdd }: AddProjectProps) {
               disabled={loading}
             >
               <FontAwesomeIcon
-                  icon={selectedIcon && iconMap[selectedIcon] ? iconMap[selectedIcon] : faPodcast}
+                icon={selectedIcon && iconMap[selectedIcon] ? iconMap[selectedIcon] : faPodcast}
                 className="text-xl"
               />
               <span>{selectedIcon ? "Change Icon" : "Choose Icon"}</span>
