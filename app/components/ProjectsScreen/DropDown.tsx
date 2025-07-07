@@ -88,7 +88,7 @@ export default function DropDown() {
                 <div className="py-1">
                     <button
                         onClick={handleEdit}
-                        className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left ${
+                        className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md transition-colors ${
                             isdark 
                                 ? "text-gray-300 hover:bg-slate-700" 
                                 : "text-gray-700 hover:bg-gray-100"
@@ -99,7 +99,7 @@ export default function DropDown() {
                     </button>
                     <button
                         onClick={handleDelete}
-                        className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left ${
+                        className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md transition-colors ${
                             isdark 
                                 ? "text-red-400 hover:bg-slate-700" 
                                 : "text-red-600 hover:bg-gray-100"
@@ -111,17 +111,23 @@ export default function DropDown() {
                 </div>
             ) : (
                 <div className="py-2 text-center text-sm">
-                    <p>Are you sure?</p>
-                    <div className="flex justify-around mt-2">
+                    <p className={`mb-2 ${isdark ? "text-white" : "text-gray-900"}`}>
+                        Are you sure?
+                    </p>
+                    <div className="flex justify-around gap-2">
                         <button
                             onClick={() => setConfirmDelete(false)}
-                            className="px-3 py-1 rounded border border-gray-400 hover:bg-gray-200"
+                            className={`px-3 py-1 rounded text-xs transition-colors ${
+                                isdark 
+                                    ? "border border-gray-600 text-gray-300 hover:bg-slate-700" 
+                                    : "border border-gray-400 text-gray-700 hover:bg-gray-200"
+                            }`}
                         >
                             Cancel
                         </button>
                         <button
                             onClick={confirmAndDelete}
-                            className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                            className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700 text-xs transition-colors"
                         >
                             Delete
                         </button>

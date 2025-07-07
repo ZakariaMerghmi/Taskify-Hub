@@ -1,88 +1,122 @@
 "use client";
-import { faDiagramProject, faLayerGroup, faList, faListCheck } from "@fortawesome/free-solid-svg-icons";
+import { faDiagramProject, faLayerGroup, faListCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {useGlobalContext }from "../contextAPI";
+import { useGlobalContext } from "../contextAPI";
 import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../../src/firebase";
 
-interface StatisticsCard{
+interface StatisticsCard {
     text: string;
     number: number;
-    icon: any
+    icon: any;
+    key: string;
 }
 
 export default function Statistics() {
-  const [currentWidth, setCurrentWidth] = useState<number>(0); // Initialize with 0 instead of window.innerWidth
-  
-  useEffect(() => {
-    // Set initial width after component mounts (client-side only)
-    setCurrentWidth(window.innerWidth);
-    
-    function handleWidth(){
-      setCurrentWidth(window.innerWidth);
-    }
-    window.addEventListener("resize", handleWidth);
-    return () => {
-      window.removeEventListener("resize", handleWidth);
-    }
-  }, []); 
+    const [currentWidth, setCurrentWidth] = useState<number>(0);
+    const [statsData, setStatsData] = useState({
+        projects: 0,
+        tasksCompleted: 0,
+        categories: 0
+    });
+    const { isdark } = useGlobalContext();
 
-  const statisticsCard: StatisticsCard[] = [
-    {
-        text: "Total Projects",
-        number: 15,
-        icon: faDiagramProject
-    },
-    {
-        text: "Task Completed",
-        number: 30,
-        icon: faListCheck
-    },
-    {
-        text: "Categories",
-        number: 3,
-        icon: faLayerGroup
-    }
-  ];
+    // Fetch data from Firebase
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Fetch projects count
+                const projectsSnapshot = await getDocs(collection(db, "projects"));
+                const projectsCount = projectsSnapshot.size;
+                
+                // Fetch tasks count (assuming tasks are in a 'tasks' collection)
+                const tasksSnapshot = await getDocs(collection(db, "tasks"));
+                const completedTasksCount = tasksSnapshot.docs.filter(doc => 
+                    doc.data().status === 'completed').length;
+                
+                // Fetch categories count
+                const categoriesSnapshot = await getDocs(collection(db, "categories"));
+                const categoriesCount = categoriesSnapshot.size;
 
-  const {isdark} = useGlobalContext();
-  
-  
-  if (currentWidth === 0) {
+                setStatsData({
+                    projects: projectsCount,
+                    tasksCompleted: completedTasksCount,
+                    categories: categoriesCount
+                });
+            } catch (error) {
+                console.error("Error fetching statistics:", error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        setCurrentWidth(window.innerWidth);
+        
+        const handleResize = () => setCurrentWidth(window.innerWidth);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    const statisticsCard: StatisticsCard[] = [
+        {
+            text: "Total Projects",
+            number: statsData.projects,
+            icon: faDiagramProject,
+            key: "projects"
+        },
+        {
+            text: "Tasks Completed",
+            number: statsData.tasksCompleted,
+            icon: faListCheck,
+            key: "tasks"
+        },
+        {
+            text: "Categories",
+            number: statsData.categories,
+            icon: faLayerGroup,
+            key: "categories"
+        }
+    ];
+
+    if (currentWidth === 0) {
+        return (
+            <div className={`m-5 rounded-lg p-8 flex gap-4 ${
+                isdark ? "bg-blue-950" : "bg-white"
+            }`}>
+                {statisticsCard.map((singleCard) => (
+                    <div key={singleCard.key} className="flex flex-col items-center justify-center w-full h-full p-4 border rounded-lg shadow-md">
+                        <div className="px-4 p-3 rounded-b-md text-white bg-blue-500 flex items-center w-full gap-12">
+                            <div className="flex flex-col gap-2">
+                                <span className="font-bold text-3xl">{singleCard.number}</span>
+                                <span className="font-light text-[12px]">{singleCard.text}</span>
+                            </div>
+                            <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center">
+                                <FontAwesomeIcon icon={singleCard.icon} className="text-blue-500" width={20} height={20} />
+                            </div>    
+                        </div>
+                    </div>
+                ))}    
+            </div>
+        );
+    }
+
     return (
-      <div className={`m-5 rounded-lg p-8 flex gap-4 ${
-          isdark ? "bg-blue-950" : "bg-white"
-      }`}>
-        {statisticsCard.map((singleCard, index) => (
-          <div key={index} className="flex flex-col items-center justify-center w-full h-full p-4 border rounded-lg shadow-md">
-              <div className="px-4 p-3 rounded-b-md text-white bg-blue-500 flex items-center w-full gap-12">
-                  <div className="flex flex-col gap-2">
-                      <span className="font-bold text-3xl">{singleCard.number}</span>
-                      <span className="font-light text-[12px]">{singleCard.text}</span>
-                  </div>
-                  <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center">
-                      <FontAwesomeIcon icon={singleCard.icon} className="text-blue-500" width={20} height={20} />
-                  </div>    
-              </div>
-          </div>
-        ))}    
-      </div>
-    );
-  }
-  
-  return (
-    <div className={`m-5 rounded-lg p-8 flex gap-4 ${
-        isdark ? "bg-blue-950" : "bg-white"
-    }`}>
-      {statisticsCard.map((singleCard, index) => (
-        <div key={index} className="flex flex-col items-center justify-center w-full h-full p-4 border rounded-lg shadow-md">
-            <Card singleCard={singleCard} currentWidth={currentWidth}/>
+        <div className={`m-5 rounded-lg p-8 flex gap-4 ${
+            isdark ? "bg-blue-950" : "bg-white"
+        }`}>
+            {statisticsCard.map((singleCard) => (
+                <div key={singleCard.key} className="flex flex-col items-center justify-center w-full h-full p-4 border rounded-lg shadow-md">
+                    <Card singleCard={singleCard} currentWidth={currentWidth}/>
+                </div>
+            ))}    
         </div>
-      ))}    
-    </div>
-  );
+    );
 }
 
-function Card({singleCard, currentWidth}: {singleCard: StatisticsCard, currentWidth: number}) {
+function Card({ singleCard, currentWidth }: { singleCard: StatisticsCard, currentWidth: number }) {
     const { text, number, icon } = singleCard;
     
     return (

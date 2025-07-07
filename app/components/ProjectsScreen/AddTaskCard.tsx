@@ -2,11 +2,17 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect } from 'react';
-import {useGlobalContext} from '../contextAPI';
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../../../src/firebase"; // adjust the path
+import { useGlobalContext } from '../contextAPI';
 
 type Priority = 'low' | 'medium' | 'high';
 
-export default function AddTaskCard() {
+interface AddTaskCardProps {
+  selectedProject?: any;
+}
+
+export default function AddTaskCard({ selectedProject }: AddTaskCardProps) {
     const { isdark, taskwindow } = useGlobalContext();
     const { openNewTaskBox, setOpenNewTaskBox } = taskwindow;
     
@@ -16,6 +22,7 @@ export default function AddTaskCard() {
     });
     const [priority, setPriority] = useState<Priority>('medium');
     const [taskName, setTaskName] = useState('');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const updateDimensions = () => {
@@ -38,11 +45,45 @@ export default function AddTaskCard() {
         };
     }, [openNewTaskBox]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle task creation with taskName and priority
-        console.log({ taskName, priority });
-        setOpenNewTaskBox(false);
+        if (!taskName.trim()) return;
+
+        setLoading(true);
+        try {
+            // Add task to Firebase with project association
+            const taskData = {
+                name: taskName.trim(),
+                priority: priority,
+                completed: false,
+                createdAt: serverTimestamp(),
+                // Use the spread operator approach from your original code
+                ...(selectedProject && { projectId: selectedProject.id })
+            };
+
+            await addDoc(collection(db, "tasks"), taskData);
+
+            // Reset form
+            setTaskName('');
+            setPriority('medium');
+            setOpenNewTaskBox(false);
+
+            // Dispatch event to refresh tasks
+            window.dispatchEvent(new CustomEvent("taskAdded"));
+        } catch (error) {
+            console.error("Error adding task:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleClose = () => {
+        if (!loading) {
+            setOpenNewTaskBox(false);
+            // Reset form when closing
+            setTaskName('');
+            setPriority('medium');
+        }
     };
 
     if (!openNewTaskBox) return null;
@@ -63,7 +104,7 @@ export default function AddTaskCard() {
                     fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
                     p-6 py-7 rounded-lg flex flex-col z-40 shadow-md
                     transition-all duration-300 origin-center
-                    ${isdark ? "bg-blue-950" : "bg-white"}
+                    ${isdark ? "bg-blue-950 text-white" : "bg-white text-black"}
                 `}
                 role="dialog"
                 aria-modal="true"
@@ -71,18 +112,33 @@ export default function AddTaskCard() {
             >
                 <div className="flex justify-between items-center">
                     <h2 id="modal-title" className="font-semibold text-[20px] mt-1">
-                        Add New Task
+                        Add New Task {selectedProject && `to ${selectedProject.name}`}
                     </h2>
                     <button 
-                        onClick={() => setOpenNewTaskBox(false)}
+                        onClick={handleClose}
                         aria-label="Close modal"
                         className="opacity-30 hover:opacity-100 transition-opacity"
+                        disabled={loading}
                     >
                         <FontAwesomeIcon icon={faClose} />
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6 mt-6 flex-1 overflow-y-auto">
+                    {/* Show project info if selected */}
+                    {selectedProject && (
+                        <div className="flex flex-col gap-2 px-3">
+                            <label className="text-sm opacity-80">
+                                Project
+                            </label>
+                            <div className={`p-3 rounded-md border ${
+                                isdark ? "bg-blue-900 border-blue-700" : "bg-blue-50 border-blue-200"
+                            }`}>
+                                <span className="text-sm font-medium">{selectedProject.name}</span>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="flex flex-col gap-2 px-3">
                         <label htmlFor="task-name" className="text-sm opacity-80">
                             Task Name
@@ -94,10 +150,11 @@ export default function AddTaskCard() {
                             onChange={(e) => setTaskName(e.target.value)}
                             className={`
                                 border w-full border-gray-200 outline-none p-3
-                                rounded-md text-[12px] ${isdark ? "bg-blue-950" : "bg-white"}
+                                rounded-md text-[12px] ${isdark ? "bg-blue-950 text-white" : "bg-white text-black"}
                             `}
                             placeholder="Type a name for your task"
                             required
+                            disabled={loading}
                         />
                     </div>
 
@@ -109,12 +166,13 @@ export default function AddTaskCard() {
                             <button
                                 type="button"
                                 onClick={() => setPriority('low')}
+                                disabled={loading}
                                 className={`px-3 py-1 rounded-md text-sm transition-colors ${
                                     priority === 'low' 
                                         ? 'bg-green-500 text-white' 
                                         : isdark 
-                                            ? 'bg-gray-800' 
-                                            : 'bg-gray-200'
+                                            ? 'bg-gray-800 hover:bg-gray-700' 
+                                            : 'bg-gray-200 hover:bg-gray-300'
                                 }`}
                             >
                                 Low
@@ -122,12 +180,13 @@ export default function AddTaskCard() {
                             <button
                                 type="button"
                                 onClick={() => setPriority('medium')}
+                                disabled={loading}
                                 className={`px-3 py-1 rounded-md text-sm transition-colors ${
                                     priority === 'medium' 
                                         ? 'bg-yellow-500 text-white' 
                                         : isdark 
-                                            ? 'bg-gray-800' 
-                                            : 'bg-gray-200'
+                                            ? 'bg-gray-800 hover:bg-gray-700' 
+                                            : 'bg-gray-200 hover:bg-gray-300'
                                 }`}
                             >
                                 Medium
@@ -135,12 +194,13 @@ export default function AddTaskCard() {
                             <button
                                 type="button"
                                 onClick={() => setPriority('high')}
+                                disabled={loading}
                                 className={`px-3 py-1 rounded-md text-sm transition-colors ${
                                     priority === 'high' 
                                         ? 'bg-red-500 text-white' 
                                         : isdark 
-                                            ? 'bg-gray-800' 
-                                            : 'bg-gray-200'
+                                            ? 'bg-gray-800 hover:bg-gray-700' 
+                                            : 'bg-gray-200 hover:bg-gray-300'
                                 }`}
                             >
                                 High
@@ -151,9 +211,14 @@ export default function AddTaskCard() {
                     <div className="text-center mx-2 mt-auto">
                         <button 
                             type="submit"
-                            className="bg-blue-500 w-full p-3 text-white rounded-md text-sm hover:bg-blue-600 transition-colors"
+                            disabled={!taskName.trim() || loading}
+                            className={`w-full p-3 rounded-md text-sm transition-colors ${
+                                taskName.trim() && !loading
+                                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                                    : 'bg-gray-400 cursor-not-allowed text-gray-200'
+                            }`}
                         >
-                            Add Task
+                            {loading ? 'Adding...' : 'Add Task'}
                         </button>
                     </div>
                 </form>

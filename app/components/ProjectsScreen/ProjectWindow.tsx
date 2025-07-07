@@ -1,29 +1,74 @@
-import React from "react";
+// ProjectWindow.tsx
+import React, { useState, useEffect } from "react";
 import { useGlobalContext } from "../contextAPI";
 import { faXmark, faProjectDiagram, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PieChart, Pie, Cell } from "recharts";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../../../src/firebase"; // adjust the path
 import TaskArea from "./TaskArea";
 
 // Define colors for the chart
 const COLORS = ["#FFFFFF", "rgba(255, 128, 66, 0)"];
 
-const data = [
-    { name: "Completed", value: 88 },
-    { name: "Remaining", value: 12 }
-];
+interface ProjectWindowProps {
+  selectedProject?: any;
+}
 
+interface Task {
+  id: string;
+  name: string;
+  priority: 'low' | 'medium' | 'high';
+  completed: boolean;
+  createdAt: any;
+  projectId?: string;
+}
 
-function ProjectWindow({ project }: { project: any | null }) {
+export default function ProjectWindow({ selectedProject }: ProjectWindowProps) {
     const { projectwindow, isdark, Mobileview } = useGlobalContext();
     const { ismobileview } = Mobileview;
     const { openCreatedProjectBox, setopenCreatedProjectBox } = projectwindow;
+    
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    if (!openCreatedProjectBox || !project) return null;
+    // Fetch tasks for the selected project
+    const fetchProjectTasks = async () => {
+        if (!selectedProject?.id) return;
+        
+        try {
+            setLoading(true);
+            const tasksQuery = query(
+                collection(db, "tasks"),
+                where("projectId", "==", selectedProject.id)
+            );
+            
+            const snapshot = await getDocs(tasksQuery);
+            const taskData = snapshot.docs.map(doc => ({ 
+                id: doc.id, 
+                ...doc.data() 
+            })) as Task[];
+            
+            setTasks(taskData);
+        } catch (error) {
+            console.error("Error fetching project tasks:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    // Compute progress data dynamically:
-    const progress = project.progress ?? { completed: 0, total: 1 };
-    const completedPercent = Math.floor((progress.completed / progress.total) * 100);
+    useEffect(() => {
+        if (openCreatedProjectBox && selectedProject?.id) {
+            fetchProjectTasks();
+        }
+    }, [openCreatedProjectBox, selectedProject?.id]);
+
+    if (!openCreatedProjectBox || !selectedProject) return null;
+
+    // Calculate actual progress from fetched tasks
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter(task => task.completed).length;
+    const completedPercent = totalTasks > 0 ? Math.floor((completedTasks / totalTasks) * 100) : 0;
 
     const pieData = [
       { name: "Completed", value: completedPercent },
@@ -63,9 +108,9 @@ function ProjectWindow({ project }: { project: any | null }) {
                                 </div>
                                 <div>
                                     <div className="flex text-white flex-col">
-                                        <span className="font-bold text-xl">{project.name}</span>
+                                        <span className="font-bold text-xl">{selectedProject.name}</span>
                                         <span className="font-light text-sm">
-                                            {(project.tasks?.length ?? 0) + " Tasks"}
+                                            {loading ? "Loading..." : `${totalTasks} Tasks`}
                                         </span>
                                     </div>
                                 </div>
@@ -98,7 +143,7 @@ function ProjectWindow({ project }: { project: any | null }) {
                                             Completed
                                         </span>
                                         <span className="text-[16px] font-light text-white">
-                                            {completedPercent}%
+                                            {loading ? "..." : `${completedPercent}%`}
                                         </span>
                                     </div>
                                 </div>
@@ -112,12 +157,13 @@ function ProjectWindow({ project }: { project: any | null }) {
                                 />
                             </div>
                         </div>
-                        <TaskArea  />
+                        <TaskArea 
+                            selectedProject={selectedProject} 
+                            onTaskUpdate={fetchProjectTasks} 
+                        />
                     </div>
                 </div>
             </div>
         </>
     );
 }
-
-export default ProjectWindow;

@@ -1,10 +1,12 @@
+// Updated RecentTasks.tsx with refresh mechanism
 "use client";
-import {useGlobalContext} from "../contextAPI";
+import { useGlobalContext } from "../contextAPI";
 import { useEffect, useState } from "react";
-
+import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { db } from "../../../src/firebase";
 
 interface RecentTask {
-  id: number;
+  id: string;
   TaskName: string;
   Createdat: string;
   ProjectName: string;
@@ -12,14 +14,15 @@ interface RecentTask {
 }
 
 export default function RecentTasks() {
-  const [currentWidth, setCurrentWidth] = useState<number>(0); 
-  
+  const [currentWidth, setCurrentWidth] = useState<number>(0);
+  const [recentTaskArray, setRecentTaskArray] = useState<RecentTask[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
-    
     setCurrentWidth(window.innerWidth);
     
-    function handleWidth(){
+    function handleWidth() {
       setCurrentWidth(window.innerWidth);
     }
     window.addEventListener("resize", handleWidth);
@@ -28,33 +31,67 @@ export default function RecentTasks() {
     }
   }, []);
 
-  const recentTaskArray: RecentTask[] = [
-   // {
-    //  id: 1,
-    //  TaskName: "Coding",
-   //   Createdat: "30 April 2024",
-   //   ProjectName: "Project 1",
-    //  status: "Pending"
-    //},
-    //{
-    //  id: 2,
-     // TaskName: "Designing",
-    //  Createdat: "30 April 2024", 
-     // ProjectName: "Project 3",
-    //  status: "Completed"
-  //  },
-  //  {
-   //   id: 3,
-      //TaskName: "Testing",
-     // Createdat: "30 April 2024",
-    //  ProjectName: "Project 2",
-   //   status: "Pending"
-   // }
-  ];
-  
-  const {isdark} = useGlobalContext();
+  // Fetch recent tasks from Firebase
+  useEffect(() => {
+    const fetchRecentTasks = async () => {
+      setLoading(true);
+      try {
+        const tasksQuery = query(
+          collection(db, "tasks"),
+          orderBy("createdAt", "desc"),
+          limit(5)
+        );
+        
+        const snapshot = await getDocs(tasksQuery);
+        const tasks: RecentTask[] = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            TaskName: data.name || data.TaskName || "Untitled Task",
+            Createdat: data.createdAt?.toDate?.()?.toLocaleDateString() || data.Createdat || "Unknown",
+            ProjectName: data.projectName || data.ProjectName || "No Project",
+            status: data.status || "Pending"
+          };
+        });
+        
+        setRecentTaskArray(tasks);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+        setRecentTaskArray([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  
+    fetchRecentTasks();
+  }, [refreshTrigger]); // Add refreshTrigger as dependency
+
+  // Listen for custom refresh events
+  useEffect(() => {
+    const handleRefreshTasks = () => {
+      setRefreshTrigger(prev => prev + 1);
+    };
+
+    window.addEventListener('tasksUpdated', handleRefreshTasks);
+    
+    return () => {
+      window.removeEventListener('tasksUpdated', handleRefreshTasks);
+    };
+  }, []);
+
+  const { isdark } = useGlobalContext();
+
+  if (loading) {
+    return (
+      <div className={`p-4 rounded-md py-8 m-5 ${
+          isdark ? "bg-blue-950" : "bg-white"
+      }`}>
+        <div className="font-semibold text-lg ml-5 mb-12">Recent Tasks</div>
+        <div className="text-center text-gray-400 text-sm">Loading tasks...</div>
+      </div>
+    );
+  }
+
   if (currentWidth === 0) {
     return (
       <div className={`p-4 rounded-md py-8 m-5 ${
@@ -104,19 +141,20 @@ export default function RecentTasks() {
         isdark ? "bg-blue-950" : "bg-white"
     }`}>
       <div className="font-semibold text-lg ml-5 mb-12">Recent Tasks</div>
-     {recentTaskArray.length > 0 ? (
+      {recentTaskArray.length > 0 ? (
         recentTaskArray.map((task) => {
-    return <Task key={task.id} recentTaskprop={task} currentWidth={currentWidth}/>
-    })) :(
-            <EmptyTasks/>
-        )} 
+          return <Task key={task.id} recentTaskprop={task} currentWidth={currentWidth}/>
+        })
+      ) : (
+        <EmptyTasks/>
+      )} 
     </div>
   );
 }
 
 function Task({recentTaskprop, currentWidth}: {recentTaskprop: RecentTask, currentWidth: number}) {
   const {TaskName, Createdat, ProjectName, status} = recentTaskprop;
-  const {isdark , Mobileview} = useGlobalContext();
+  const {isdark, Mobileview} = useGlobalContext();
   
   const getStatusColor = (status: string) => {
     return status === "Completed" ? "text-green-500" : "text-orange-500";
@@ -158,16 +196,14 @@ function Task({recentTaskprop, currentWidth}: {recentTaskprop: RecentTask, curre
   );
 }
 
-
-
 function EmptyTasks(){
-    return(
-        <div className="p-1 gap-5 flex flex-col justify-between items-center">
-            <div className="">
-                <p className="text-gray-400 text-center text-[13px]">
-                    there are no Task in the moment!
-                </p>
-            </div>
-        </div>
-    )
+  return(
+    <div className="p-1 gap-5 flex flex-col justify-between items-center">
+      <div className="">
+        <p className="text-gray-400 text-center text-[13px]">
+          There are no tasks at the moment!
+        </p>
+      </div>
+    </div>
+  )
 }
