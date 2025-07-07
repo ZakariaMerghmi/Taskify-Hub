@@ -40,8 +40,22 @@ export default Dashboard;
 
 function TopBar() {
     const [searchBar, setSearchBar] = React.useState(false);
-    const {isdark , Sidebar} = useGlobalContext();
+    const {isdark , Sidebar, Auth} = useGlobalContext();
     const {OpenSidebar , setOpenSidebar} = Sidebar;
+    const {user} = Auth;
+    
+    // Extract the first name from the user's display name or email
+    const getFirstName = () => {
+        if (user?.displayName) {
+            return user.displayName.split(' ')[0];
+        }
+        if (user?.email) {
+            return user.email.split('@')[0];
+        }
+        return 'User';
+    };
+    
+    const firstName = getFirstName();
     
     return (
         <div className='p-4 md:p-8 md:pt-12 flex items-center justify-between w-full'>
@@ -56,15 +70,15 @@ function TopBar() {
             </div>
             <div className='flex flex-col'>
                 <span className='font-bold text-xl md:text-2xl'>
-                    Hello, <span className='font-light'>Zak</span>
+                    Hello, <span className='font-light'>{firstName}</span>
                 </span>
                 <span className='text-[12px] font-light'>
                     Welcome back !
                 </span>
             </div>
-            
+                        
             {searchBar && <SearchBar/>}
-            
+                        
             <div className='w-[130px] flex items-center justify-between'>
                 <FontAwesomeIcon
                     height={20}

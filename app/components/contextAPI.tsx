@@ -17,7 +17,7 @@ import {
   faLayerGroup,
 } from "@fortawesome/free-solid-svg-icons";
 
-import { db } from "../../src/firebase";
+import { db, auth } from "../../src/firebase";
 import {
   collection,
   getDocs,
@@ -26,12 +26,32 @@ import {
   orderBy,
 } from "firebase/firestore";
 
+// Import Firebase Auth
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut,
+  onAuthStateChanged,
+  User,
+  updateProfile,
+  sendPasswordResetEmail
+} from "firebase/auth";
+
 // --- Interfaces ---
 
 export interface MenuItem {
   name: string;
   icon: string;
   isSelected: boolean;
+}
+
+interface AuthContext {
+  user: User | null;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (name: string, email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  loading: boolean;
 }
 
 export interface Project {
@@ -104,6 +124,7 @@ interface GlobalContextType {
     addCategory: (name: string) => Promise<void>;
     setCategoryData: Dispatch<SetStateAction<Category[]>>;
   };
+  Auth: AuthContext;
   projects: Project[];
   addProject: (project: Omit<Project, "id">) => Promise<void>;
 }
@@ -125,6 +146,8 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     { name: "Projects", icon: "bars-progress", isSelected: false },
     { name: "Categories", icon: "layer-group", isSelected: false },
   ]);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [openNewProjectBox, setopenNewProjectBox] = useState(false);
   const [openIconBox, setOpenIconBox] = useState(false);
   const [openNewTaskBox, setOpenNewTaskBox] = useState(false);
@@ -143,8 +166,71 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
       setCategories((prev) => [...prev, newCategory]);
     } catch (error) {
       console.error("Failed to add category:", error);
+      throw error;
     }
   };
+
+  // Authentication functions
+  const login = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      setUser(userCredential.user);
+    } catch (error: any) {
+      console.error("Login error:", error);
+      throw new Error(error.message || "Failed to login");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const signup = async (name: string, email: string, password: string) => {
+    try {
+      setLoading(true);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Update the user's display name
+      await updateProfile(userCredential.user, {
+        displayName: name
+      });
+      
+      setUser(userCredential.user);
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      throw new Error(error.message || "Failed to create account");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+    } catch (error: any) {
+      console.error("Logout error:", error);
+      throw new Error(error.message || "Failed to logout");
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch (error: any) {
+      console.error("Password reset error:", error);
+      throw new Error(error.message || "Failed to send password reset email");
+    }
+  };
+
+  // Auth state listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
 
   // Fetch data & responsive mobile view handler
   useEffect(() => {
@@ -196,6 +282,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
       setProjects((prev) => [...prev, { ...project, id: docRef.id }]);
     } catch (error) {
       console.error("Failed to add project:", error);
+      throw error;
     }
   };
 
@@ -229,6 +316,14 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
           categories,
           addCategory,
           setCategoryData: setCategories,
+        },
+        Auth: {
+          user,
+          login,
+          signup,
+          logout,
+          resetPassword,
+          loading
         },
         projects,
         addProject,
