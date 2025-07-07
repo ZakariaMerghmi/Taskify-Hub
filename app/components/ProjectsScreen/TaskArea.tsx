@@ -145,9 +145,9 @@ export default function TaskArea({ selectedProject, onTaskUpdate }: TaskAreaProp
         {/* Right: Sort By Dropdown */}
         <div className="relative sort-dropdown">
           <div 
-            className={`flex items-center gap-2 text-sm cursor-pointer p-2 rounded-md hover:bg-opacity-10 ${
-              isdark ? "hover:bg-white" : "hover:bg-black"
-            }`}
+            className={`flex items-center gap-2 text-sm cursor-pointer p-2 rounded-md hover:bg-opacity-10 
+             
+            `}
             onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
           >
             <span>Sort by:</span>
@@ -169,7 +169,7 @@ export default function TaskArea({ selectedProject, onTaskUpdate }: TaskAreaProp
                 onClick={() => handleSortChange('name')}
                 className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
                   sortBy === 'name' ? 'bg-blue-500 text-white' : ''
-                } ${isdark ? "hover:bg-slate-700" : "hover:bg-gray-100"}`}
+                }`}
               >
                 Name
               </button>

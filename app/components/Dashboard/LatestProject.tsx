@@ -144,12 +144,10 @@ function EmptyProjects() {
       <div>
         <h3 className="font-semibold text-lg mb-1 text-center">{`there are no projects yet...`}</h3>
         <p className="text-gray-400 text-sm w-52 text-center">
-          please click below to add a new project
+          please add new project to start managing your tasks.
         </p>
       </div>
-      <button className="bg-blue-500 p-3 rounded-md text-white text-center text-sm px-7 hover:cursor-pointer active:scale-95">
-        Add new Project
-      </button>
+      
     </div>
   );
 }

@@ -1,8 +1,8 @@
-// Updated RecentTasks.tsx with refresh mechanism
+// Updated RecentTasks.tsx with proper project info and status
 "use client";
 import { useGlobalContext } from "../contextAPI";
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit, doc, getDoc } from "firebase/firestore";
 import { db } from "../../../src/firebase";
 
 interface RecentTask {
@@ -11,6 +11,13 @@ interface RecentTask {
   Createdat: string;
   ProjectName: string;
   status: string;
+  projectId?: string;
+  completed: boolean;
+}
+
+interface Project {
+  id: string;
+  name: string;
 }
 
 export default function RecentTasks() {
@@ -31,7 +38,21 @@ export default function RecentTasks() {
     }
   }, []);
 
-  // Fetch recent tasks from Firebase
+  // Fetch project name by projectId
+  const fetchProjectName = async (projectId: string): Promise<string> => {
+    try {
+      const projectDoc = await getDoc(doc(db, "projects", projectId));
+      if (projectDoc.exists()) {
+        return projectDoc.data().name || "Unknown Project";
+      }
+      return "Unknown Project";
+    } catch (error) {
+      console.error("Error fetching project:", error);
+      return "Unknown Project";
+    }
+  };
+
+  // Fetch recent tasks from Firebase with proper project info
   useEffect(() => {
     const fetchRecentTasks = async () => {
       setLoading(true);
@@ -43,17 +64,28 @@ export default function RecentTasks() {
         );
         
         const snapshot = await getDocs(tasksQuery);
-        const tasks: RecentTask[] = snapshot.docs.map(doc => {
-          const data = doc.data();
+        const tasksPromises = snapshot.docs.map(async (taskDoc) => {
+          const data = taskDoc.data();
+          let projectName = "General Tasks"; // Default for tasks without projectId
+          
+          // If task has a projectId, fetch the project name
+          if (data.projectId) {
+            projectName = await fetchProjectName(data.projectId);
+          }
+          
           return {
-            id: doc.id,
-            TaskName: data.name || data.TaskName || "Untitled Task",
-            Createdat: data.createdAt?.toDate?.()?.toLocaleDateString() || data.Createdat || "Unknown",
-            ProjectName: data.projectName || data.ProjectName || "No Project",
-            status: data.status || "Pending"
+            id: taskDoc.id,
+            TaskName: data.name || "Untitled Task",
+            Createdat: data.createdAt?.toDate?.()?.toLocaleDateString() || 
+                      new Date().toLocaleDateString(),
+            ProjectName: projectName,
+            status: data.completed ? "Completed" : "Pending",
+            projectId: data.projectId || null,
+            completed: data.completed || false
           };
         });
         
+        const tasks = await Promise.all(tasksPromises);
         setRecentTaskArray(tasks);
       } catch (error) {
         console.error("Error fetching tasks:", error);
@@ -72,10 +104,17 @@ export default function RecentTasks() {
       setRefreshTrigger(prev => prev + 1);
     };
 
+    // Listen for multiple events that might affect tasks
     window.addEventListener('tasksUpdated', handleRefreshTasks);
+    window.addEventListener('taskAdded', handleRefreshTasks);
+    window.addEventListener('taskDeleted', handleRefreshTasks);
+    window.addEventListener('taskCompleted', handleRefreshTasks);
     
     return () => {
       window.removeEventListener('tasksUpdated', handleRefreshTasks);
+      window.removeEventListener('taskAdded', handleRefreshTasks);
+      window.removeEventListener('taskDeleted', handleRefreshTasks);
+      window.removeEventListener('taskCompleted', handleRefreshTasks);
     };
   }, []);
 
@@ -103,7 +142,9 @@ export default function RecentTasks() {
               isdark ? "bg-blue-900 border-blue-800" : "bg-gray-50 border-gray-200"
           }`}>
             <div className="flex flex-col gap-1">
-              <span className="font-semibold">{task.TaskName}</span>
+              <span className={`font-semibold ${task.completed ? 'line-through opacity-60' : ''}`}>
+                {task.TaskName}
+              </span>
               <span className="font-medium text-blue-500 text-[15px] hidden md:block">
                 {task.Createdat}
               </span>
@@ -153,7 +194,7 @@ export default function RecentTasks() {
 }
 
 function Task({recentTaskprop, currentWidth}: {recentTaskprop: RecentTask, currentWidth: number}) {
-  const {TaskName, Createdat, ProjectName, status} = recentTaskprop;
+  const {TaskName, Createdat, ProjectName, status, completed} = recentTaskprop;
   const {isdark, Mobileview} = useGlobalContext();
   
   const getStatusColor = (status: string) => {
@@ -167,7 +208,9 @@ function Task({recentTaskprop, currentWidth}: {recentTaskprop: RecentTask, curre
         isdark ? "bg-blue-900 border-blue-800" : "bg-gray-50 border-gray-200"
     }`}>
       <div className="flex flex-col gap-1">
-        <span className="font-semibold">{TaskName}</span>
+        <span className={`font-semibold ${completed ? 'line-through opacity-60' : ''}`}>
+          {TaskName}
+        </span>
         <span className={`font-medium text-blue-500 text-[15px] ${isMobile ? "hidden" : ""}`}>
           {Createdat}
         </span>
