@@ -12,7 +12,7 @@ This dashboard mimics real-world SaaS project management tools — supporting ch
 ![Main Page Screenshot](<img width="1893" height="847" alt="Image" src="https://github.com/user-attachments/assets/a967c250-769b-487f-a0e7-c12942b72ebe" />)
 
 ### 📁 Project Area  
-![Project Area Screenshot](<img width="1891" height="847" alt="Image" src="https://github.com/user-attachments/assets/4d5cddcf-d8ba-46dc-be1b-c76a4bdedd2d" />)
+![Project Area Screenshot](https://github.com/user-attachments/assets/4d5cddcf-d8ba-46dc-be1b-c76a4bdedd2d />)
 
 ### 🗃️ Category Area  
 ![Category Area Screenshot](https://your-screenshot-link/category-area.png)
