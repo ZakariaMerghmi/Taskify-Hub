@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useGlobalContext } from "../contextAPI";
 import { faBarsProgress, faDiagramProject } from "@fortawesome/free-solid-svg-icons";
 import ProjectNewIcon from "@/app/assets/svgs/svgicons";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../../src/firebase"; // adjust the path
 import {
   faStar,
@@ -33,16 +33,64 @@ interface Project {
   [key: string]: any; // For any additional properties
 }
 
+interface Task {
+  id: string;
+  name: string;
+  priority: 'low' | 'medium' | 'high';
+  completed: boolean;
+  createdAt: any;
+  projectId?: string;
+}
+
 export default function RightSidebar() {
   const { isdark } = useGlobalContext();
   const [projects, setProjects] = useState<Project[]>([]);
 
+  // Calculate progress for a project based on its tasks
+  const calculateProjectProgress = async (projectId: string): Promise<ProjectProgress> => {
+    try {
+      const tasksQuery = query(
+        collection(db, "tasks"),
+        where("projectId", "==", projectId)
+      );
+      
+      const snapshot = await getDocs(tasksQuery);
+      const tasks = snapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      })) as Task[];
+      
+      const total = tasks.length;
+      const completed = tasks.filter(task => task.completed).length;
+      
+      return { completed, total: total || 1 }; // Avoid division by zero
+    } catch (error) {
+      console.error("Error calculating project progress:", error);
+      return { completed: 0, total: 1 };
+    }
+  };
+
   const fetchProjects = async () => {
     try {
       const snapshot = await getDocs(collection(db, "projects"));
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
+      const projectsData = snapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      })) as Project[];
+      
+      // Calculate progress for each project
+      const projectsWithProgress = await Promise.all(
+        projectsData.map(async (project) => {
+          const progress = await calculateProjectProgress(project.id);
+          return {
+            ...project,
+            progress
+          };
+        })
+      );
+      
       // Get the latest 3 projects
-      const latestProjects = data.slice(-3).reverse();
+      const latestProjects = projectsWithProgress.slice(-3).reverse();
       setProjects(latestProjects);
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -52,13 +100,27 @@ export default function RightSidebar() {
   useEffect(() => {
     fetchProjects();
     
+    // Listen for project and task updates
     const handleProjectDeleted = () => {
       fetchProjects();
     };
     
+    const handleTaskAdded = () => {
+      fetchProjects(); // Refresh to update progress
+    };
+    
+    const handleTaskUpdated = () => {
+      fetchProjects(); // Refresh to update progress
+    };
+    
     window.addEventListener("projectDeleted", handleProjectDeleted);
+    window.addEventListener("taskAdded", handleTaskAdded);
+    window.addEventListener("taskUpdated", handleTaskUpdated);
+    
     return () => {
       window.removeEventListener("projectDeleted", handleProjectDeleted);
+      window.removeEventListener("taskAdded", handleTaskAdded);
+      window.removeEventListener("taskUpdated", handleTaskUpdated);
     };
   }, []);
 
