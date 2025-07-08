@@ -15,7 +15,7 @@ This dashboard mimics real-world SaaS project management tools — supporting ch
 ![Project Area Screenshot](https://github.com/user-attachments/assets/4d5cddcf-d8ba-46dc-be1b-c76a4bdedd2d )
 
 ### 🗃️ Category Area  
-![Category Area Screenshot](https://your-screenshot-link/category-area.png)
+![Category Area Screenshot](https://github.com/user-attachments/assets/1d124faf-286f-472f-a970-5a3d4ade21c9)
 
 ### ➕ Add Project Window  
 ![Add Project Window Screenshot](https://your-screenshot-link/add-project-window.png)
