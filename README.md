@@ -21,7 +21,7 @@ This dashboard mimics real-world SaaS project management tools — supporting ch
 ![Add Project Window Screenshot](https://github.com/user-attachments/assets/3a5b7f36-e15f-4120-91c6-7c6addaf77c8)
 
 ### 🔐 Login & Signup Page  
-![Login/Signup Screenshot](https://your-screenshot-link/login-signup.png)
+![Login/Signup Screenshot](https://github.com/user-attachments/assets/ffdf5d48-86c1-4117-8954-0739ff7598aa)
 
 ---
 
