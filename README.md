@@ -1,49 +1,56 @@
 # 📊 Taskify-Hub – Modern Admin Panel with Next.js + Tailwind + Firebase + Recharts
 
-**DashboardHub** is a professional-grade, fully responsive **Admin Dashboard** built using **Next.js 14**, styled with **TailwindCSS**, integrated with **Firebase**, and powered by **Recharts** for interactive data visualization.
+**Taskify-Hub** is a modern, fully responsive **Admin Dashboard** built with **Next.js 14**, styled using **TailwindCSS**, integrated with **Firebase**, and powered by **Recharts** for interactive data visualization and task management.
 
-The project emulates a real-world SaaS dashboard experience — showcasing charts, tables, sidebars, and user interactions with clean UI and modular architecture.
+This dashboard mimics real-world SaaS project management tools — supporting charts, project areas, task categories, and a smooth login/signup flow using Firebase.
 
 ---
 
 ## 📸 Screenshots
 
-### 📊 Dashboard Overview  
-![Dashboard Screenshot](https://your-screenshot-link)
+### 🏠 Main Dashboard Page  
+![Main Page Screenshot](https://your-screenshot-link/main-page.png)
 
-### 🗂️ Sidebar Navigation  
-![Sidebar Screenshot](https://your-screenshot-link)
+### 📁 Project Area  
+![Project Area Screenshot](https://your-screenshot-link/project-area.png)
 
-### 📈 Recharts Data Visualization  
-![Charts Screenshot](https://your-screenshot-link)
+### 🗃️ Category Area  
+![Category Area Screenshot](https://your-screenshot-link/category-area.png)
+
+### ➕ Add Project Window  
+![Add Project Window Screenshot](https://your-screenshot-link/add-project-window.png)
+
+### 🔐 Login & Signup Page  
+![Login/Signup Screenshot](https://your-screenshot-link/login-signup.png)
 
 ---
 
 ## 💡 Features
 
-✅ **Next.js App Router + Layouts**  
-🎨 Built with **Tailwind CSS** for clean, responsive design  
-📊 **Interactive charts** with Recharts  
-🔐 **Firebase Authentication** (Google Login integration)  
-📁 Modular file structure with components and context  
-🌙 Light/Dark mode toggle  
-📦 Reusable **Card**, **Table**, and **Chart** components  
-⚙️ Sidebar with icon-based navigation  
-💾 Local data handling (JSON + Firebase structure-ready)  
-🚀 Optimized for deployment via **Vercel**
+✅ **Next.js 14 App Router + Nested Layouts**  
+🎨 Built with **Tailwind CSS** for clean and responsive UI  
+📊 **Interactive charts** with **Recharts**  
+🔐 **Firebase Authentication** (Google & Email Sign-In)  
+📂 Project & Category management system  
+🧱 Modular & scalable component-based architecture  
+📦 Reusable components (Card, Table, Chart, Modal)  
+🌗 Light/Dark mode toggle  
+📁 Local & Firebase-ready data handling  
+📱 **Fully Responsive** — Works great on all screen sizes  
+🚀 Deployed and optimized for **Vercel**
 
 ---
 
 ## 🎯 Purpose
 
-**DashboardHub** was developed to:
+Taskify-Hub was created to:
 
-- Build a modern **admin dashboard UI** using **Next.js 14 App Router**
-- Practice real-world layout strategies with **nested routes and layouts**
-- Implement **reusable components** (cards, graphs, tables)
-- Work with **Firebase Authentication** for login flows
-- Use **Recharts** for visually rich and responsive data insights
-- Prepare for real-life **front-end developer roles**
+- Build a **modern, responsive dashboard UI** using **Next.js App Router**
+- Practice layout strategies with nested routes and components
+- Implement dynamic, reusable **cards, charts, tables**
+- Integrate **Firebase Authentication** in a real-world app
+- Visualize data using **Recharts**
+- Learn how to prepare a project for **deployment and scaling**
 
 ---
 
@@ -54,31 +61,33 @@ The project emulates a real-world SaaS dashboard experience — showcasing chart
 | Framework    | Next.js 14 (App Router)            |
 | Styling      | TailwindCSS                        |
 | Charts       | Recharts                           |
-| Auth         | Firebase (Google Sign-in)          |
-| UI Components| React + Custom Hooks               |
+| Auth         | Firebase (Google & Email Login)    |
+| UI Components| React + Context API                |
 | Deployment   | Vercel                             |
 
 ---
 
-## 🚀 Live Demo
+## 🚀 Live Demo & Code
 
-> 🌐 [**DashboardHub Live on Vercel**](https://dashboard-hub-ccp2.vercel.app/)  
+> 🌐 [**Live Demo**](https://dashboard-hub-ccp2.vercel.app/)  
 > 🔗 [**GitHub Repository**](https://github.com/ZakariaMerghmi/Dashboard-Hub)
 
 ---
 
 ## 🧠 What I Learned
 
-- Building dynamic layouts with **Next.js App Router**
-- Structuring scalable front-end applications
-- Creating **chart components** with **Recharts**
-- Integrating **Firebase auth** in a real project
-- Handling reusable design systems with **Tailwind**
-- Deploying and fixing build issues with **Vercel**
+- Creating nested layouts with **Next.js 14 App Router**
+- Designing mobile-first and **fully responsive UIs**
+- Building reusable chart components using **Recharts**
+- Integrating **Firebase Authentication** (Google & Email)
+- Managing global state with **React Context API**
+- Handling environment configs and deployments via **Vercel**
 
 ---
 
 ## 🧪 Getting Started
+
+Clone and run the project locally:
 
 ```bash
 git clone https://github.com/ZakariaMerghmi/Dashboard-Hub.git
