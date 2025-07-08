@@ -9,7 +9,7 @@ This dashboard mimics real-world SaaS project management tools — supporting ch
 ## 📸 Screenshots
 
 ### 🏠 Main Dashboard Page  
-![Main Page Screenshot](https://github.com/user-attachments/assets/4d5cddcf-d8ba-46dc-be1b-c76a4bdedd2d )
+![Main Page Screenshot](https://github.com/user-attachments/assets/df1aebde-0fcd-40a2-8cf9-14ca16e0d209)
 
 ### 📁 Project Area  
 ![Project Area Screenshot](https://github.com/user-attachments/assets/4d5cddcf-d8ba-46dc-be1b-c76a4bdedd2d )
