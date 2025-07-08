@@ -62,7 +62,7 @@ The project emulates a real-world SaaS dashboard experience — showcasing chart
 
 ## 🚀 Live Demo
 
-> 🌐 [**DashboardHub Live on Vercel**](https://dashboard-hub-zakaria.vercel.app/)  
+> 🌐 [**DashboardHub Live on Vercel**](https://dashboard-hub-ccp2.vercel.app/)  
 > 🔗 [**GitHub Repository**](https://github.com/ZakariaMerghmi/Dashboard-Hub)
 
 ---
