@@ -1,4 +1,4 @@
-# 📊 DashboardHub – Modern Admin Panel with Next.js + Tailwind + Firebase + Recharts
+# 📊 Taskify-Hub – Modern Admin Panel with Next.js + Tailwind + Firebase + Recharts
 
 **DashboardHub** is a professional-grade, fully responsive **Admin Dashboard** built using **Next.js 14**, styled with **TailwindCSS**, integrated with **Firebase**, and powered by **Recharts** for interactive data visualization.
 
