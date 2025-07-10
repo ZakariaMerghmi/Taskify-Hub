@@ -22,35 +22,105 @@ export default function Statistics() {
     });
     const { isdark } = useGlobalContext();
 
-    // Fetch data from Firebase
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Fetch projects count
-                const projectsSnapshot = await getDocs(collection(db, "projects"));
-                const projectsCount = projectsSnapshot.size;
-                
-                // Fetch tasks count (assuming tasks are in a 'tasks' collection)
-                const tasksSnapshot = await getDocs(collection(db, "tasks"));
-                const completedTasksCount = tasksSnapshot.docs.filter(doc => 
-                    doc.data().status === 'completed').length;
-                
-                // Fetch categories count
-                const categoriesSnapshot = await getDocs(collection(db, "categories"));
-                const categoriesCount = categoriesSnapshot.size;
-
-                setStatsData({
-                    projects: projectsCount,
-                    tasksCompleted: completedTasksCount,
-                    categories: categoriesCount
+    // Debug function to see what's in your tasks
+    const debugTasks = async () => {
+        try {
+            const tasksSnapshot = await getDocs(collection(db, "tasks"));
+            console.log("=== TASK DEBUG INFO ===");
+            console.log("Total tasks found:", tasksSnapshot.size);
+            
+            tasksSnapshot.docs.forEach((doc, index) => {
+                const data = doc.data();
+                console.log(`Task ${index + 1}:`, {
+                    id: doc.id,
+                    data: data,
+                    completed: data.completed,
+                    status: data.status,
+                    isCompleted: data.isCompleted,
+                    isDone: data.isDone
                 });
-            } catch (error) {
-                console.error("Error fetching statistics:", error);
-            }
-        };
+            });
+            
+            // Count completed tasks with different possible field names
+            const completedByCompleted = tasksSnapshot.docs.filter(doc => doc.data().completed === true).length;
+            const completedByStatus = tasksSnapshot.docs.filter(doc => doc.data().status === 'completed').length;
+            const completedByIsCompleted = tasksSnapshot.docs.filter(doc => doc.data().isCompleted === true).length;
+            
+            console.log("Completed count by 'completed' field:", completedByCompleted);
+            console.log("Completed count by 'status' field:", completedByStatus);
+            console.log("Completed count by 'isCompleted' field:", completedByIsCompleted);
+            console.log("=== END DEBUG INFO ===");
+        } catch (error) {
+            console.error("Error in debug:", error);
+        }
+    };
 
-        fetchData();
+    // Fetch data from Firebase - using the same approach as RightSidebar
+    const fetchStatistics = async () => {
+        try {
+            // Fetch projects count
+            const projectsSnapshot = await getDocs(collection(db, "projects"));
+            const projectsCount = projectsSnapshot.size;
+            
+            // Fetch tasks and count completed ones (same logic as RightSidebar)
+            const tasksSnapshot = await getDocs(collection(db, "tasks"));
+            const completedTasksCount = tasksSnapshot.docs.filter(doc => {
+                const data = doc.data();
+                return data.completed === true; // Match RightSidebar logic
+            }).length;
+            
+            // Fetch categories count
+            const categoriesSnapshot = await getDocs(collection(db, "categories"));
+            const categoriesCount = categoriesSnapshot.size;
+
+            console.log("Statistics Update:", {
+                projects: projectsCount,
+                tasksCompleted: completedTasksCount,
+                categories: categoriesCount
+            });
+
+            setStatsData({
+                projects: projectsCount,
+                tasksCompleted: completedTasksCount,
+                categories: categoriesCount
+            });
+        } catch (error) {
+            console.error("Error fetching statistics:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchStatistics();
+        
+        // Listen for the same events as RightSidebar
+        const handleStatsUpdate = () => {
+            fetchStatistics();
+        };
+        
+        // Add event listeners for task updates
+        window.addEventListener("taskAdded", handleStatsUpdate);
+        window.addEventListener("taskDeleted", handleStatsUpdate);
+        window.addEventListener("taskCompleted", handleStatsUpdate);
+        window.addEventListener("tasksUpdated", handleStatsUpdate);
+        
+        // Add event listeners for project updates
+        window.addEventListener("projectDeleted", handleStatsUpdate);
+        window.addEventListener("projectAdded", handleStatsUpdate);
+        window.addEventListener("projectUpdated", handleStatsUpdate);
+        
+        return () => {
+            window.removeEventListener("taskAdded", handleStatsUpdate);
+            window.removeEventListener("taskDeleted", handleStatsUpdate);
+            window.removeEventListener("taskCompleted", handleStatsUpdate);
+            window.removeEventListener("tasksUpdated", handleStatsUpdate);
+            window.removeEventListener("projectDeleted", handleStatsUpdate);
+            window.removeEventListener("projectAdded", handleStatsUpdate);
+            window.removeEventListener("projectUpdated", handleStatsUpdate);
+        };
     }, []);
+
+    // Remove the old refreshStats function and additional useEffect
+    // since we're now using the same event-based approach as RightSidebar
 
     useEffect(() => {
         setCurrentWidth(window.innerWidth);
@@ -111,7 +181,9 @@ export default function Statistics() {
                 <div key={singleCard.key} className="flex flex-col items-center justify-center w-full h-full p-4 border rounded-lg shadow-md">
                     <Card singleCard={singleCard} currentWidth={currentWidth}/>
                 </div>
-            ))}    
+            ))}
+            {/* Debug button to check task data */}
+        
         </div>
     );
 }

@@ -63,7 +63,7 @@ export default function RightSidebar() {
       const total = tasks.length;
       const completed = tasks.filter(task => task.completed).length;
       
-      return { completed, total: total || 1 }; // Avoid division by zero
+      return { completed, total: total || 1 }; 
     } catch (error) {
       console.error("Error calculating project progress:", error);
       return { completed: 0, total: 1 };
