@@ -69,7 +69,7 @@ Taskify-Hub was created to:
 
 ## 🚀 Live Demo & Code
 
-> 🌐 [**Live Demo**](https://dashboard-hub-ccp2.vercel.app/)  
+> 🌐 [**Live Demo**](https://dashboard-hub-snowy.vercel.app/authentication)  
 > 🔗 [**GitHub Repository**](https://github.com/ZakariaMerghmi/Dashboard-Hub)
 
 ---
