@@ -77,7 +77,7 @@ export default function AddProject({ onAdd }: AddProjectProps) {
     try {
       await addProject({
         name: projectName.trim(),
-        category: category, // Use selected category
+        category: category, 
         icon: selectedIcon!,
       });
 
@@ -97,7 +97,7 @@ export default function AddProject({ onAdd }: AddProjectProps) {
 
   return (
     <>
-      {/* Background Overlay */}
+     
       <div
         className={`fixed inset-0 bg-black z-30 transition-opacity duration-300 ${
           openNewProjectBox ? "opacity-50" : "opacity-0 pointer-events-none"
@@ -105,7 +105,7 @@ export default function AddProject({ onAdd }: AddProjectProps) {
         onClick={() => setopenNewProjectBox(false)}
       />
 
-      {/* Modal Window */}
+    
       <form
         onSubmit={handleSubmit}
         style={{ width: `${dimensions.width}px`, height: `${dimensions.height}px` }}
@@ -119,7 +119,7 @@ export default function AddProject({ onAdd }: AddProjectProps) {
         aria-labelledby="modal-title"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+     
         <div className="flex justify-between items-center">
           <h2 id="modal-title" className="font-semibold text-[20px] mt-1">
             Add New Project
@@ -134,9 +134,9 @@ export default function AddProject({ onAdd }: AddProjectProps) {
           </button>
         </div>
 
-        {/* Inputs */}
+        
         <div className="flex flex-col gap-6 mt-6 flex-1">
-          {/* Project Name */}
+        
           <div className="flex flex-col gap-2 px-3">
             <label htmlFor="project-name" className="text-sm opacity-80">
               Project Name
@@ -154,7 +154,7 @@ export default function AddProject({ onAdd }: AddProjectProps) {
             />
           </div>
 
-          {/* Category */}
+        
           <div className="flex flex-col gap-2 mx-3">
             <label htmlFor="project-category" className="text-sm opacity-80">
               Categories
@@ -184,7 +184,7 @@ export default function AddProject({ onAdd }: AddProjectProps) {
             </select>
           </div>
 
-          {/* Icon Picker Button */}
+       
           <div className="px-3">
             <button
               type="button"
@@ -200,7 +200,7 @@ export default function AddProject({ onAdd }: AddProjectProps) {
             </button>
           </div>
 
-          {/* Submit Button */}
+       
           <div className="px-3">
             <button
               type="submit"
@@ -216,7 +216,7 @@ export default function AddProject({ onAdd }: AddProjectProps) {
           </div>
         </div>
 
-        {/* Icon Picker Window */}
+       
         {openIconBox && (
           <IconWindow selectedIcon={selectedIcon} setSelectedIcon={handleIconSelect} />
         )}

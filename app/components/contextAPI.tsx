@@ -26,7 +26,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 
-// Import Firebase Auth
+
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -37,7 +37,7 @@ import {
   sendPasswordResetEmail
 } from "firebase/auth";
 
-// --- Interfaces ---
+
 
 export interface MenuItem {
   name: string;
@@ -66,7 +66,7 @@ export interface Category {
   name: string;
 }
 
-// --- Icon Mapping ---
+
 
 const iconMap: Record<string, IconDefinition> = {
   "tachometer-alt": faTachometerAlt,
@@ -78,7 +78,7 @@ export function getIconByName(name: string): IconDefinition | undefined {
   return iconMap[name];
 }
 
-// --- Global Context Type ---
+
 
 interface GlobalContextType {
   isdark: boolean;
@@ -129,7 +129,7 @@ interface GlobalContextType {
   addProject: (project: Omit<Project, "id">) => Promise<void>;
 }
 
-// --- Context Setup ---
+
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
@@ -170,7 +170,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Authentication functions
+  
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
@@ -189,7 +189,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      // Update the user's display name
+      
       await updateProfile(userCredential.user, {
         displayName: name
       });
@@ -222,7 +222,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Auth state listener
+ 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
@@ -232,7 +232,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, [auth]);
 
-  // Fetch data & responsive mobile view handler
+ 
   useEffect(() => {
     async function fetchProjects() {
       try {
@@ -275,7 +275,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Add Project
+ 
   const addProject = async (project: Omit<Project, "id">) => {
     try {
       const docRef = await addDoc(projectsCollection, project);
@@ -334,7 +334,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// --- Custom Hook ---
+
 
 export function useGlobalContext() {
   const context = useContext(GlobalContext);

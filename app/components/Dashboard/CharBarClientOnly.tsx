@@ -29,7 +29,7 @@ export default function CharBar() {
     
     const fetchWeeklyData = async () => {
       try {
-        // Get the last 7 days
+        
         const today = new Date();
         const weekData: TaskData[] = [];
         
@@ -43,7 +43,7 @@ export default function CharBar() {
           const endOfDay = new Date(date);
           endOfDay.setHours(23, 59, 59, 999);
           
-          // Try to fetch tasks for this day
+          
           let tasksCount = 0;
           try {
             const tasksQuery = query(
@@ -55,7 +55,7 @@ export default function CharBar() {
             const snapshot = await getDocs(tasksQuery);
             tasksCount = snapshot.size;
           } catch (error) {
-            // If tasks collection doesn't exist, use random data for demo
+            
             tasksCount = Math.floor(Math.random() * 10) + 1;
           }
           
@@ -68,7 +68,7 @@ export default function CharBar() {
         setChartData(weekData);
       } catch (error) {
         console.error("Error fetching weekly data:", error);
-        // Fallback to mock data
+      
         const mockData: TaskData[] = [
           { day: "Monday", tasks: 5 },
           { day: "Tuesday", tasks: 8 },

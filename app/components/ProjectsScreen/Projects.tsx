@@ -22,7 +22,7 @@ export default function Projects() {
     <div className={`relative w-full min-h-screen ${isdark ? "bg-gray-900" : "bg-slate-50"}`}>
       <ProjectsTopBar />
       <DropDown />
-      {/* Fixed: Changed 'project' to 'selectedProject' to match the expected prop name */}
+     
       <ProjectWindow selectedProject={selectedProject}/>
       {openNewProjectBox && <AddProject onAdd={handleAdd} />}
       <ProjectArea key={refreshKey} onAdd={handleAdd} setSelectedProject={setSelectedProject}/>

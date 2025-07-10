@@ -1,4 +1,4 @@
-// app/authentication/page.tsx
+
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useGlobalContext } from '../components/contextAPI';
@@ -22,24 +22,27 @@ const AuthPage = () => {
     name: ''
   });
 
-  // Redirect if user is already logged in
+  
   useEffect(() => {
     if (user && !loading) {
-      router.push('/'); // Redirect to dashboard
+      router.push('/'); 
     }
   }, [user, loading, router]);
 
-  // Show loading while checking auth state
+ 
   if (loading) {
     return (
       <div className={`min-h-screen flex justify-center items-center 
         ${isdark ? 'bg-blue-950' : 'bg-gray-50'}`}>
-        <div className="text-blue-500 text-lg">Loading...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-blue-500 text-lg">Loading...</div>
+        </div>
       </div>
     );
   }
 
-  // Don't render the form if user is logged in
+ 
   if (user) {
     return null;
   }
@@ -49,7 +52,7 @@ const AuthPage = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
-    // Clear error when user starts typing
+    
     if (error) setError('');
   };
 
@@ -69,7 +72,7 @@ const AuthPage = () => {
         await signup(formData.name, formData.email, formData.password);
       }
       
-      // Success - redirect will happen via useEffect
+      
       router.push('/');
     } catch (err: any) {
       console.error('Auth error:', err);

@@ -32,7 +32,7 @@ const Sidebar = () => {
         try {
             setIsLoggingOut(true);
             await logout();
-            router.push('/authentication'); // Fixed: Changed from '/auth' to '/authentication'
+            router.push('/authentication'); 
         } catch (error) {
             console.error('Error signing out:', error);
         } finally {
@@ -100,7 +100,7 @@ const Sidebar = () => {
                 <div className='pl-5 cursor-pointer p-3 flex flex-col gap-8'>
                     {user ? (
                         <div className='flex flex-col gap-4'>
-                            {/* User Info */}
+                            
                             <div className='flex items-center gap-3 text-sm'>
                                 <div className='w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center'>
                                     <FontAwesomeIcon
@@ -118,7 +118,7 @@ const Sidebar = () => {
                                 </div>
                             </div>
                             
-                            {/* Sign Out Button */}
+                       
                             <button
                                 onClick={handleSignOut}
                                 disabled={isLoggingOut}

@@ -5,7 +5,7 @@ import { faEllipsis, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../../../src/firebase";
 
-// Define Category type
+
 type Category = {
   id: string;
   name: string;
@@ -49,7 +49,7 @@ export default function CategoriesArea() {
       fetchCategories();
     };
 
-    // Listen for category events
+    
     window.addEventListener("categoryAdded", handleCategoryAdded);
     window.addEventListener("categoryDeleted", handleCategoryDeleted);
     
@@ -82,7 +82,7 @@ export default function CategoriesArea() {
   );
 }
 
-// CategoryCard component with inline dropdown
+
 function CategoryCard({
   category,
   onRefresh,
@@ -109,9 +109,9 @@ function CategoryCard({
       setShowDropdown(false);
       setConfirmDelete(false);
       
-      // Dispatch event to refresh categories
+   
       window.dispatchEvent(new CustomEvent('categoryDeleted'));
-      onRefresh(); // Also call the refresh function directly
+      onRefresh();
     } catch (error) {
       console.error("Failed to delete category:", error);
     }
@@ -120,10 +120,10 @@ function CategoryCard({
   const handleEdit = () => {
     console.log("Editing category:", category.id);
     setShowDropdown(false);
-    // Add your edit logic here
+    
   };
 
-  // Close dropdown when clicking outside
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -169,7 +169,7 @@ function CategoryCard({
         />
       </div>
 
-      {/* Inline dropdown menu */}
+    
       {showDropdown && (
         <div className={`absolute top-12 right-4 z-50 w-40 rounded-md shadow-lg border p-2 ${
           isdark 

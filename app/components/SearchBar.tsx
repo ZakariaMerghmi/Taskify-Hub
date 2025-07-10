@@ -47,7 +47,7 @@ export default function SearchBar() {
       }
     });
 
-    // Search in categories
+   
     categories.forEach(category => {
       if (category.name.toLowerCase().includes(query)) {
         results.push({
@@ -64,7 +64,7 @@ export default function SearchBar() {
     setShowResults(results.length > 0);
   }, [searchQuery, projects, categories]);
 
-  // Close search results when clicking outside
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
@@ -82,18 +82,18 @@ export default function SearchBar() {
 
   const handleResultClick = (result: SearchResult) => {
     console.log('Selected:', result);
-    // Handle navigation or action based on result type
+   
     switch (result.type) {
       case 'project':
-        // Navigate to project or perform action
+      
         console.log('Opening project:', result.title);
         break;
       case 'category':
-        // Navigate to category or perform action
+       
         console.log('Opening category:', result.title);
         break;
       case 'task':
-        // Navigate to task or perform action
+       
         console.log('Opening task:', result.title);
         break;
     }
@@ -162,7 +162,7 @@ export default function SearchBar() {
         )}
       </div>
 
-      {/* Search Results Dropdown */}
+     
       {showResults && (
         <div className={`absolute top-full left-0 right-0 z-50 border border-t-0 rounded-b-md shadow-lg max-h-60 overflow-y-auto ${
           isdark ? 'bg-blue-900 border-gray-600' : 'bg-white border-gray-300'

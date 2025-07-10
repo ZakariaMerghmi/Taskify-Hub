@@ -5,10 +5,10 @@ import { faXmark, faProjectDiagram, faClose } from "@fortawesome/free-solid-svg-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { PieChart, Pie, Cell } from "recharts";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../../../src/firebase"; // adjust the path
+import { db } from "../../../src/firebase"; 
 import TaskArea from "./TaskArea";
 
-// Define colors for the chart
+
 const COLORS = ["#FFFFFF", "rgba(255, 128, 66, 0)"];
 
 interface ProjectWindowProps {
@@ -32,7 +32,7 @@ export default function ProjectWindow({ selectedProject }: ProjectWindowProps) {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Fetch tasks for the selected project
+    
     const fetchProjectTasks = async () => {
         if (!selectedProject?.id) return;
         
@@ -65,7 +65,7 @@ export default function ProjectWindow({ selectedProject }: ProjectWindowProps) {
 
     if (!openCreatedProjectBox || !selectedProject) return null;
 
-    // Calculate actual progress from fetched tasks
+ 
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter(task => task.completed).length;
     const completedPercent = totalTasks > 0 ? Math.floor((completedTasks / totalTasks) * 100) : 0;

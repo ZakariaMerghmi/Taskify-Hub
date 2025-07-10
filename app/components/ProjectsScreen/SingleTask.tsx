@@ -1,4 +1,4 @@
-// SingleTask.tsx
+
 "use client";
 import { useState } from 'react';
 import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
@@ -16,7 +16,7 @@ interface Task {
 interface SingleTaskProps {
   task: Task;
   onTaskUpdate: () => Promise<void>;
-  selectedProject?: any; // Add this prop to fix the TypeScript error
+  selectedProject?: any; 
 }
 
 export default function SingleTask({ task, onTaskUpdate, selectedProject }: SingleTaskProps) {

@@ -22,7 +22,7 @@ export default function Statistics() {
     });
     const { isdark } = useGlobalContext();
 
-    // Debug function to see what's in your tasks
+  
     const debugTasks = async () => {
         try {
             const tasksSnapshot = await getDocs(collection(db, "tasks"));
@@ -41,7 +41,7 @@ export default function Statistics() {
                 });
             });
             
-            // Count completed tasks with different possible field names
+          
             const completedByCompleted = tasksSnapshot.docs.filter(doc => doc.data().completed === true).length;
             const completedByStatus = tasksSnapshot.docs.filter(doc => doc.data().status === 'completed').length;
             const completedByIsCompleted = tasksSnapshot.docs.filter(doc => doc.data().isCompleted === true).length;
@@ -55,21 +55,21 @@ export default function Statistics() {
         }
     };
 
-    // Fetch data from Firebase - using the same approach as RightSidebar
+   
     const fetchStatistics = async () => {
         try {
-            // Fetch projects count
+            
             const projectsSnapshot = await getDocs(collection(db, "projects"));
             const projectsCount = projectsSnapshot.size;
             
-            // Fetch tasks and count completed ones (same logic as RightSidebar)
+          
             const tasksSnapshot = await getDocs(collection(db, "tasks"));
             const completedTasksCount = tasksSnapshot.docs.filter(doc => {
                 const data = doc.data();
-                return data.completed === true; // Match RightSidebar logic
+                return data.completed === true; 
             }).length;
             
-            // Fetch categories count
+          
             const categoriesSnapshot = await getDocs(collection(db, "categories"));
             const categoriesCount = categoriesSnapshot.size;
 
@@ -92,18 +92,18 @@ export default function Statistics() {
     useEffect(() => {
         fetchStatistics();
         
-        // Listen for the same events as RightSidebar
+      
         const handleStatsUpdate = () => {
             fetchStatistics();
         };
         
-        // Add event listeners for task updates
+        
         window.addEventListener("taskAdded", handleStatsUpdate);
         window.addEventListener("taskDeleted", handleStatsUpdate);
         window.addEventListener("taskCompleted", handleStatsUpdate);
         window.addEventListener("tasksUpdated", handleStatsUpdate);
         
-        // Add event listeners for project updates
+       
         window.addEventListener("projectDeleted", handleStatsUpdate);
         window.addEventListener("projectAdded", handleStatsUpdate);
         window.addEventListener("projectUpdated", handleStatsUpdate);
@@ -118,9 +118,6 @@ export default function Statistics() {
             window.removeEventListener("projectUpdated", handleStatsUpdate);
         };
     }, []);
-
-    // Remove the old refreshStats function and additional useEffect
-    // since we're now using the same event-based approach as RightSidebar
 
     useEffect(() => {
         setCurrentWidth(window.innerWidth);
@@ -182,7 +179,7 @@ export default function Statistics() {
                     <Card singleCard={singleCard} currentWidth={currentWidth}/>
                 </div>
             ))}
-            {/* Debug button to check task data */}
+           
         
         </div>
     );

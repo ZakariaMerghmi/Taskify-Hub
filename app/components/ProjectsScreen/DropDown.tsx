@@ -14,14 +14,14 @@ export default function DropDown() {
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    // Delete project and all its associated tasks from Firebase
+    
     const confirmAndDelete = async () => {
         if (!activeItemId) return;
         
         setIsDeleting(true);
         
         try {
-            // First, find and delete all tasks associated with this project
+        
             const tasksQuery = query(
                 collection(db, "tasks"),
                 where("projectId", "==", activeItemId)
@@ -29,21 +29,20 @@ export default function DropDown() {
             
             const tasksSnapshot = await getDocs(tasksQuery);
             
-            // Delete all associated tasks
+           
             const deleteTaskPromises = tasksSnapshot.docs.map(taskDoc => 
                 deleteDoc(doc(db, "tasks", taskDoc.id))
             );
             
             await Promise.all(deleteTaskPromises);
             
-            // Then delete the project itself
             await deleteDoc(doc(db, "projects", activeItemId));
             
-            // Close dropdown and reset state
+            
             setopenDropDown(false);
             setConfirmDelete(false);
             
-            // Dispatch event to refresh project list
+            
             window.dispatchEvent(new Event('projectDeleted'));
             
         } catch (error) {

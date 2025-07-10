@@ -1,4 +1,4 @@
-// app/forgot-password/page.tsx
+
 'use client';
 import React, { useState } from 'react';
 import { useGlobalContext } from '../components/contextAPI';
@@ -23,7 +23,7 @@ const ForgotPasswordPage = () => {
     try {
       await resetPassword(email);
       setMessage('Password reset email sent! Check your inbox and follow the instructions to reset your password.');
-      setEmail(''); // Clear the email field after successful submission
+      setEmail(''); 
     } catch (err: any) {
       console.error('Password reset error:', err);
       setError(err.message || 'Failed to send password reset email');
@@ -34,7 +34,7 @@ const ForgotPasswordPage = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
-    // Clear messages when user starts typing
+   
     if (error) setError('');
     if (message) setMessage('');
   };

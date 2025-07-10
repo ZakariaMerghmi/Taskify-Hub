@@ -1,4 +1,4 @@
-// Updated RecentTasks.tsx with proper project info and status
+
 "use client";
 import { useGlobalContext } from "../contextAPI";
 import { useEffect, useState } from "react";
@@ -38,7 +38,7 @@ export default function RecentTasks() {
     }
   }, []);
 
-  // Fetch project name by projectId
+ 
   const fetchProjectName = async (projectId: string): Promise<string> => {
     try {
       const projectDoc = await getDoc(doc(db, "projects", projectId));
@@ -52,7 +52,7 @@ export default function RecentTasks() {
     }
   };
 
-  // Fetch recent tasks from Firebase with proper project info
+
   useEffect(() => {
     const fetchRecentTasks = async () => {
       setLoading(true);
@@ -66,9 +66,9 @@ export default function RecentTasks() {
         const snapshot = await getDocs(tasksQuery);
         const tasksPromises = snapshot.docs.map(async (taskDoc) => {
           const data = taskDoc.data();
-          let projectName = "General Tasks"; // Default for tasks without projectId
+          let projectName = "General Tasks"; 
           
-          // If task has a projectId, fetch the project name
+         
           if (data.projectId) {
             projectName = await fetchProjectName(data.projectId);
           }
@@ -96,15 +96,15 @@ export default function RecentTasks() {
     };
 
     fetchRecentTasks();
-  }, [refreshTrigger]); // Add refreshTrigger as dependency
+  }, [refreshTrigger]); 
 
-  // Listen for custom refresh events
+  
   useEffect(() => {
     const handleRefreshTasks = () => {
       setRefreshTrigger(prev => prev + 1);
     };
 
-    // Listen for multiple events that might affect tasks
+    
     window.addEventListener('tasksUpdated', handleRefreshTasks);
     window.addEventListener('taskAdded', handleRefreshTasks);
     window.addEventListener('taskDeleted', handleRefreshTasks);

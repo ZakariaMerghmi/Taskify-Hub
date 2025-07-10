@@ -4,7 +4,7 @@ import { useGlobalContext } from "../contextAPI";
 import { faBarsProgress, faDiagramProject } from "@fortawesome/free-solid-svg-icons";
 import ProjectNewIcon from "@/app/assets/svgs/svgicons";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../../../src/firebase"; // adjust the path
+import { db } from "../../../src/firebase"; 
 import {
   faStar,
   faCoffee,
@@ -17,7 +17,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
-// Define the project type based on your existing structure
+
 interface ProjectProgress {
   completed: number;
   total: number;
@@ -30,7 +30,7 @@ interface Project {
   category?: string;
   categories?: string[];
   progress?: ProjectProgress;
-  [key: string]: any; // For any additional properties
+  [key: string]: any; 
 }
 
 interface Task {
@@ -46,7 +46,7 @@ export default function RightSidebar() {
   const { isdark } = useGlobalContext();
   const [projects, setProjects] = useState<Project[]>([]);
 
-  // Calculate progress for a project based on its tasks
+  
   const calculateProjectProgress = async (projectId: string): Promise<ProjectProgress> => {
     try {
       const tasksQuery = query(
@@ -78,7 +78,7 @@ export default function RightSidebar() {
         ...doc.data() 
       })) as Project[];
       
-      // Calculate progress for each project
+    
       const projectsWithProgress = await Promise.all(
         projectsData.map(async (project) => {
           const progress = await calculateProjectProgress(project.id);
@@ -89,7 +89,7 @@ export default function RightSidebar() {
         })
       );
       
-      // Get the latest 3 projects
+     
       const latestProjects = projectsWithProgress.slice(-3).reverse();
       setProjects(latestProjects);
     } catch (error) {
@@ -100,17 +100,17 @@ export default function RightSidebar() {
   useEffect(() => {
     fetchProjects();
     
-    // Listen for project and task updates
+   
     const handleProjectDeleted = () => {
       fetchProjects();
     };
     
     const handleTaskAdded = () => {
-      fetchProjects(); // Refresh to update progress
+      fetchProjects(); 
     };
     
     const handleTaskUpdated = () => {
-      fetchProjects(); // Refresh to update progress
+      fetchProjects(); 
     };
     
     window.addEventListener("projectDeleted", handleProjectDeleted);

@@ -51,24 +51,24 @@ export default function AddTaskCard({ selectedProject }: AddTaskCardProps) {
 
         setLoading(true);
         try {
-            // Add task to Firebase with project association
+           
             const taskData = {
                 name: taskName.trim(),
                 priority: priority,
                 completed: false,
                 createdAt: serverTimestamp(),
-                // Use the spread operator approach from your original code
+               
                 ...(selectedProject && { projectId: selectedProject.id })
             };
 
             await addDoc(collection(db, "tasks"), taskData);
 
-            // Reset form
+           
             setTaskName('');
             setPriority('medium');
             setOpenNewTaskBox(false);
 
-            // Dispatch event to refresh tasks
+          
             window.dispatchEvent(new CustomEvent("taskAdded"));
         } catch (error) {
             console.error("Error adding task:", error);
@@ -80,7 +80,7 @@ export default function AddTaskCard({ selectedProject }: AddTaskCardProps) {
     const handleClose = () => {
         if (!loading) {
             setOpenNewTaskBox(false);
-            // Reset form when closing
+          
             setTaskName('');
             setPriority('medium');
         }
@@ -125,7 +125,7 @@ export default function AddTaskCard({ selectedProject }: AddTaskCardProps) {
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6 mt-6 flex-1 overflow-y-auto">
-                    {/* Show project info if selected */}
+                 
                     {selectedProject && (
                         <div className="flex flex-col gap-2 px-3">
                             <label className="text-sm opacity-80">

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "../contextAPI";
 import LatestProjects from "./LatestProject";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../../../src/firebase"; // adjust the path
+import { db } from "../../../src/firebase"; 
 
-// Define the project type
+
 interface ProjectProgress {
   completed: number;
   total: number;
@@ -49,7 +49,7 @@ function OverallProgress() {
     try {
       setLoading(true);
       
-      // Fetch all projects
+     
       const projectsSnapshot = await getDocs(collection(db, "projects"));
       const projects = projectsSnapshot.docs.map(doc => ({ 
         id: doc.id, 
@@ -63,18 +63,18 @@ function OverallProgress() {
         ...doc.data() 
       } as Task));
 
-      // Calculate progress for each project and overall
+     
       let totalCompleted = 0;
       let totalTasks = 0;
 
-      // Count general tasks (tasks without projectId)
+    
       const generalTasks = tasks.filter(task => !task.projectId);
       const completedGeneralTasks = generalTasks.filter(task => task.completed);
       
       totalTasks += generalTasks.length;
       totalCompleted += completedGeneralTasks.length;
 
-      // Count tasks for each project
+  
       projects.forEach(project => {
         const projectTasks = tasks.filter(task => task.projectId === project.id);
         const completedProjectTasks = projectTasks.filter(task => task.completed);
@@ -96,18 +96,18 @@ function OverallProgress() {
   useEffect(() => {
     fetchProjectsAndCalculateProgress();
     
-    // Listen for various events that might affect overall progress
+ 
     const handleProgressUpdate = () => {
       fetchProjectsAndCalculateProgress();
     };
     
-    // Listen for task-related events
+   
     window.addEventListener("taskAdded", handleProgressUpdate);
     window.addEventListener("taskDeleted", handleProgressUpdate);
     window.addEventListener("taskCompleted", handleProgressUpdate);
     window.addEventListener("tasksUpdated", handleProgressUpdate);
     
-    // Listen for project-related events
+   
     window.addEventListener("projectDeleted", handleProgressUpdate);
     window.addEventListener("projectAdded", handleProgressUpdate);
     window.addEventListener("projectUpdated", handleProgressUpdate);

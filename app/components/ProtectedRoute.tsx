@@ -23,7 +23,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
   }, [user, loading, router, redirectTo]);
 
-  // Show loading spinner while checking auth state
+ 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -35,7 +35,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // Don't render children if user is not authenticated
+  
   if (!user) {
     return null;
   }

@@ -4,7 +4,7 @@ import { faBarsProgress, faDiagramProject, faEllipsis } from "@fortawesome/free-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {useGlobalContext} from "../contextAPI";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../../src/firebase"; // adjust the path
+import { db } from "../../../src/firebase"; 
 import {
   faStar,
   faCoffee,

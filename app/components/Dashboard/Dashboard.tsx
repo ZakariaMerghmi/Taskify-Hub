@@ -1,8 +1,10 @@
+// components/Dashboard.tsx
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react'
-import {useGlobalContext} from '../contextAPI';
+import React from 'react';
+import { useGlobalContext } from '../contextAPI';
 import { faAngleDown, faBars, faClose, faDoorOpen, faSearch, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import SearchBar from '../SearchBar';
 import Statistics from './Statistics';
 import RightSidebar from './RightSidebar';
@@ -10,14 +12,14 @@ import CharBar from './CharBar';
 import RecentTasks from './RacentTasks';
 
 const Dashboard = () => {
-    const {isdark, Mobileview, Sidebar} = useGlobalContext();
-    const {ismobileview} = Mobileview;
-    const {OpenSidebar} = Sidebar;
+    const { isdark, Mobileview, Sidebar } = useGlobalContext();
+    const { ismobileview } = Mobileview;
+    const { OpenSidebar } = Sidebar;
 
     return (
         <div className={`flex-1 min-h-screen overflow-y-auto transition-all duration-300 
              ${OpenSidebar ? "md:ml-[280px] md:w-[calc(100%-280px)]" : ""}`}>
-            <TopBar/>
+            <TopBar />
             <div 
                 className={`${isdark ? "bg-transparent" : "bg-slate-50"}
                 ${ismobileview ? "flex-col" : "flex-row"} flex`}
@@ -25,17 +27,17 @@ const Dashboard = () => {
                 <div className={`${ismobileview ? "w-full" : "w-full lg:w-8/12"} border-r ${isdark ? "border-gray-700" : "border-gray-200"}`}>
                     <div className={`${ismobileview ? "p-4" : "p-8"} space-y-8 w-full`}>
                         <div className="space-y-8 w-full">
-                            <Statistics/>
-                            <CharBar/>
-                            <RecentTasks/>
+                            <Statistics />
+                            <CharBar />
+                            <RecentTasks />
                         </div>
                     </div>
                 </div>
-                <RightSidebar/> {/* Moved inside the flex container */}
+                <RightSidebar />
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default Dashboard;
 
@@ -43,11 +45,12 @@ function TopBar() {
     const [searchBar, setSearchBar] = React.useState(false);
     const [showLogoutTooltip, setShowLogoutTooltip] = React.useState(false);
     const [isLoggingOut, setIsLoggingOut] = React.useState(false);
-    const {isdark , Sidebar, Auth} = useGlobalContext();
-    const {OpenSidebar , setOpenSidebar} = Sidebar;
-    const {user, logout} = Auth; // Make sure to get the logout function from Auth
+    const { isdark, Sidebar, Auth } = useGlobalContext();
+    const { OpenSidebar, setOpenSidebar } = Sidebar;
+    const { user, logout } = Auth;
+    const router = useRouter();
     
-    // Extract the first name from the user's display name or email
+    
     const getFirstName = () => {
         if (user?.displayName) {
             return user.displayName.split(' ')[0];
@@ -63,13 +66,15 @@ function TopBar() {
     const handleLogout = async () => {
         try {
             setIsLoggingOut(true);
-            await logout(); 
+            await logout();
+            router.push('/authentication'); 
         } catch (error) {
             console.error('Error logging out:', error);
         } finally {
             setIsLoggingOut(false);
         }
     };
+
     return (
         <div className='p-4 md:p-8 md:pt-12 flex items-center justify-between w-full'>
             <div className='flex md:hidden'>
@@ -86,14 +91,14 @@ function TopBar() {
                     Hello, <span className='font-light'>{firstName}</span>
                 </span>
                 <span className='text-[12px] font-light'>
-                    Welcome back !
+                    Welcome back!
                 </span>
             </div>
                                 
-            {searchBar && <SearchBar/>}
+            {searchBar && <SearchBar />}
                                 
             <div className='flex items-center gap-4'>
-                {/* Search Icon */}
+               
                 <div className='relative'>
                     <FontAwesomeIcon
                         height={20}
@@ -106,16 +111,16 @@ function TopBar() {
                     />
                 </div>
                 
-                {/* Logout Button - Fixed version */}
+                {/* Logout Button */}
                 <div 
                     className='relative'
                     onMouseEnter={() => setShowLogoutTooltip(true)}
                     onMouseLeave={() => setShowLogoutTooltip(false)}
                 >
-                    <Link
-                        href="/authentication"
+                    <button
                         onClick={handleLogout}
-                        className={`p-2 rounded-full transition-all duration-200 hover:scale-110 inline-block ${
+                        disabled={isLoggingOut}
+                        className={`p-2 rounded-full transition-all duration-200 hover:scale-110 ${
                             isdark 
                                 ? "hover:bg-red-900/20 text-red-400 hover:text-red-300" 
                                 : "hover:bg-red-50 text-red-500 hover:text-red-600"
@@ -126,7 +131,7 @@ function TopBar() {
                             width={18}
                             icon={faSignOutAlt}
                         />
-                    </Link>
+                    </button>
                     
                     {/* Tooltip */}
                     {showLogoutTooltip && (
@@ -142,26 +147,7 @@ function TopBar() {
                         </div>
                     )}
                 </div>
-                
-                {/* Alternative: If you prefer to use router.push like in sidebar */}
-                {/* 
-                <button
-                    onClick={handleLogout}
-                    disabled={isLoggingOut}
-                    className={`p-2 rounded-full transition-all duration-200 hover:scale-110 ${
-                        isdark 
-                            ? "hover:bg-red-900/20 text-red-400 hover:text-red-300" 
-                            : "hover:bg-red-50 text-red-500 hover:text-red-600"
-                    } ${isLoggingOut ? "opacity-50 cursor-not-allowed" : ""}`}
-                >
-                    <FontAwesomeIcon
-                        height={18}
-                        width={18}
-                        icon={faSignOutAlt}
-                    />
-                </button>
-                */}
             </div>
         </div>
-    )
+    );
 }
