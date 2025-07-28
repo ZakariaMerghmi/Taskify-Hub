@@ -2,12 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useGlobalContext } from "../contextAPI";
-import { doc, deleteDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../../../src/firebase";
 
 export default function DropDown() {
     const { isdark, DropDown } = useGlobalContext();
-    const { openDropDown, setopenDropDown, activeItemId } = DropDown;
+    const { openDropDown, setopenDropDown, activeItemId, deleteFunction } = DropDown;
     
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -16,37 +14,20 @@ export default function DropDown() {
 
     
     const confirmAndDelete = async () => {
-        if (!activeItemId) return;
+        if (!activeItemId || !deleteFunction) return;
         
         setIsDeleting(true);
         
         try {
-        
-            const tasksQuery = query(
-                collection(db, "tasks"),
-                where("projectId", "==", activeItemId)
-            );
-            
-            const tasksSnapshot = await getDocs(tasksQuery);
-            
            
-            const deleteTaskPromises = tasksSnapshot.docs.map(taskDoc => 
-                deleteDoc(doc(db, "tasks", taskDoc.id))
-            );
+            await deleteFunction();
             
-            await Promise.all(deleteTaskPromises);
-            
-            await deleteDoc(doc(db, "projects", activeItemId));
-            
-            
+        
             setopenDropDown(false);
             setConfirmDelete(false);
             
-            
-            window.dispatchEvent(new Event('projectDeleted'));
-            
         } catch (error) {
-            console.error("Failed to delete project and its tasks:", error);
+            console.error("Failed to delete project:", error);
         } finally {
             setIsDeleting(false);
         }
@@ -68,8 +49,8 @@ export default function DropDown() {
                 if (trigger) {
                     const rect = trigger.getBoundingClientRect();
                     setPosition({
-                        top: rect.bottom + window.scrollY,
-                        left: rect.left + window.scrollX
+                        top: rect.bottom + window.scrollY + 5, 
+                        left: rect.right + window.scrollX - 160 
                     });
                 }
             }
@@ -86,11 +67,13 @@ export default function DropDown() {
             updatePosition();
             document.addEventListener("mousedown", handleClickOutside);
             window.addEventListener("resize", updatePosition);
+            window.addEventListener("scroll", updatePosition);
         }
 
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
             window.removeEventListener("resize", updatePosition);
+            window.removeEventListener("scroll", updatePosition);
         };
     }, [openDropDown, setopenDropDown, activeItemId]);
 

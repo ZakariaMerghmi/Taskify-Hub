@@ -24,6 +24,7 @@ import {
   addDoc,
   query,
   orderBy,
+  where,
 } from "firebase/firestore";
 
 import { 
@@ -36,41 +37,23 @@ import {
   sendPasswordResetEmail
 } from "firebase/auth";
 
-// ADD DEMO DATA HERE
-const DEMO_DATA = {
-  user: {
-    uid: 'demo-user-123',
-    email: 'demo@focusly.com',
-    displayName: 'Demo User',
-    photoURL: null,
-    isDemo: true
-  },
-  projects: [
-    {
-      id: 'proj-1',
-      name: 'Website Redesign',
-      category: 'Design',
-      icon: 'tachometer-alt'
-    },
-    {
-      id: 'proj-2', 
-      name: 'Mobile App Development',
-      category: 'Development',
-      icon: 'bars-progress'
-    },
-    {
-      id: 'proj-3',
-      name: 'Marketing Campaign Q1',
-      category: 'Marketing',
-      icon: 'layer-group'
-    }
-  ],
-  categories: [
-    { id: 'cat-1', name: 'Design' },
-    { id: 'cat-2', name: 'Development' },
-    { id: 'cat-3', name: 'Marketing' },
-    { id: 'cat-4', name: 'Research' }
-  ]
+
+interface DemoUser extends User {
+  isDemo?: boolean;
+}
+
+// FIXED DEMO USER CONFIGURATION
+const DEMO_USER_CONFIG = {
+  uid: 'demo-user-foxly',
+  email: 'demo@foxly.com',
+  displayName: 'Demo User',
+  photoURL: null,
+  isDemo: true
+};
+
+const BASE_DEMO_DATA = {
+  projects: [], 
+  categories: [] 
 };
 
 export interface MenuItem {
@@ -80,13 +63,12 @@ export interface MenuItem {
 }
 
 interface AuthContext {
-  user: User | null;
+  user: DemoUser | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   loading: boolean;
-  // ADD DEMO FUNCTIONS TO INTERFACE
   loginDemo: () => Promise<void>;
   isDemoMode: () => boolean;
   getDemoData: () => any;
@@ -98,11 +80,13 @@ export interface Project {
   name: string;
   category: string;
   icon: string;
+  userId?: string; 
 }
 
 export interface Category {
   id: string;
   name: string;
+  userId?: string; 
 }
 
 const iconMap: Record<string, IconDefinition> = {
@@ -145,6 +129,8 @@ interface GlobalContextType {
     setopenDropDown: (value: boolean) => void;
     activeItemId: string | null;
     setActiveItemId: (id: string | null) => void;
+    deleteFunction: (() => Promise<void>) | null;
+    setDeleteFunction: (fn: (() => Promise<void>) | null) => void;
   };
   taskwindow: {
     openNewTaskBox: boolean;
@@ -161,7 +147,8 @@ interface GlobalContextType {
   };
   Auth: AuthContext;
   projects: Project[];
-  addProject: (project: Omit<Project, "id">) => Promise<void>;
+  setProjects: Dispatch<SetStateAction<Project[]>>;
+  addProject: (project: Omit<Project, "id" | "userId">) => Promise<void>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -172,6 +159,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const [ismobileview, setIsmobileview] = useState(false);
   const [openDropDown, setopenDropDown] = useState(false);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
+  const [deleteFunction, setDeleteFunction] = useState<(() => Promise<void>) | null>(null);
   const [openCreatedProjectBox, setopenCreatedProjectBox] = useState(false);
   const [showAddCategoryBox, setShowAddCategoryBox] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
@@ -179,7 +167,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     { name: "Projects", icon: "bars-progress", isSelected: false },
     { name: "Categories", icon: "layer-group", isSelected: false },
   ]);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<DemoUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [openNewProjectBox, setopenNewProjectBox] = useState(false);
   const [openIconBox, setOpenIconBox] = useState(false);
@@ -190,20 +178,58 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const projectsCollection = collection(db, "projects");
   const categoriesCollection = collection(db, "categories");
 
-  // ADD DEMO FUNCTIONS HERE
+  
+  const getDemoStorageKey = (type: 'data') => {
+    return `foxly_demo_${type}`;
+  };
+
+  const saveDemoData = (data: any) => {
+    if (typeof window === 'undefined') return;
+    const storageKey = getDemoStorageKey('data');
+    localStorage.setItem(storageKey, JSON.stringify(data));
+    localStorage.setItem('foxly_demo_mode', 'true');
+  };
+
+  const loadDemoData = () => {
+    if (typeof window === 'undefined') return null;
+    
+    const storageKey = getDemoStorageKey('data');
+    const data = localStorage.getItem(storageKey);
+    return data ? JSON.parse(data) : null;
+  };
+
+  const isDemoMode = () => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('foxly_demo_mode') === 'true';
+  };
+
+  const getDemoData = () => {
+    return loadDemoData();
+  };
+
+
   const loginDemo = async () => {
     try {
       setLoading(true);
-      // Store demo session
-      sessionStorage.setItem('demoMode', 'true');
-      sessionStorage.setItem('demoData', JSON.stringify(DEMO_DATA));
       
-      // Set demo user as current user
-      setUser(DEMO_DATA.user as any);
+     
+      const demoUser = { ...DEMO_USER_CONFIG } as DemoUser;
       
-      // Set demo projects and categories
-      setProjects(DEMO_DATA.projects);
-      setCategories(DEMO_DATA.categories);
+
+      let demoData = loadDemoData();
+      if (!demoData) {
+        demoData = {
+          user: demoUser,
+          projects: [...BASE_DEMO_DATA.projects],
+          categories: [...BASE_DEMO_DATA.categories]
+        };
+        saveDemoData(demoData);
+      }
+      
+ 
+      setUser(demoUser);
+      setProjects(demoData.projects || []);
+      setCategories(demoData.categories || []);
       
       console.log('Demo login successful');
     } catch (error) {
@@ -214,44 +240,135 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const isDemoMode = () => {
-    return sessionStorage.getItem('demoMode') === 'true';
-  };
-
-  const getDemoData = () => {
-    const data = sessionStorage.getItem('demoData');
-    return data ? JSON.parse(data) : null;
-  };
-
   const exitDemo = () => {
-    sessionStorage.removeItem('demoMode');
-    sessionStorage.removeItem('demoData');
+    if (typeof window === 'undefined') return;
+    
+    localStorage.removeItem('foxly_demo_mode');
+    localStorage.removeItem(getDemoStorageKey('data'));
+    
     setUser(null);
     setProjects([]);
     setCategories([]);
   };
 
-  // Add Category - MODIFIED FOR DEMO
-  const addCategory = async (name: string) => {
-    if (name.trim() === "") return;
+
+  const addProject = async (project: Omit<Project, "id" | "userId">) => {
+    console.log('🚀 Adding project:', project);
+    console.log('👤 Current user:', user ? { uid: user.uid, email: user.email } : 'No user');
     
+    if (!user?.uid) {
+      console.error('❌ No user UID available');
+      throw new Error('User must be logged in to add projects');
+    }
+
     if (isDemoMode()) {
-      // For demo mode, just add to local state
-      const newCategory: Category = { 
-        id: `demo-cat-${Date.now()}`, 
-        name 
+      console.log('🎭 Demo mode - adding to localStorage');
+      const newProject = { 
+        ...project, 
+        id: `demo-proj-${Date.now()}`,
+        userId: user.uid
       };
-      setCategories((prev) => [...prev, newCategory]);
+      
+      const updatedProjects = [...projects, newProject];
+      setProjects(updatedProjects);
+      
+    
+      const currentDemoData = loadDemoData();
+      if (currentDemoData) {
+        const updatedDemoData = {
+          ...currentDemoData,
+          projects: updatedProjects
+        };
+        saveDemoData(updatedDemoData);
+      }
+      
+      console.log('✅ Demo project added:', newProject.name);
       return;
     }
     
-    // Regular Firebase logic
+    
     try {
-      const docRef = await addDoc(categoriesCollection, { name });
-      const newCategory: Category = { id: docRef.id, name };
-      setCategories((prev) => [...prev, newCategory]);
+      console.log('🔥 Adding to Firebase...');
+      const projectWithUserId = { ...project, userId: user.uid };
+      console.log('📄 Project data to save:', projectWithUserId);
+      
+      const docRef = await addDoc(projectsCollection, projectWithUserId);
+      console.log('✅ Firebase document created with ID:', docRef.id);
+      
+      const newProject = { ...projectWithUserId, id: docRef.id };
+      setProjects((prev) => {
+        console.log('📊 Previous projects count:', prev.length);
+        const updated = [...prev, newProject];
+        console.log('📊 Updated projects count:', updated.length);
+        return updated;
+      });
+      
+      console.log('✅ Project added successfully:', newProject);
     } catch (error) {
-      console.error("Failed to add category:", error);
+      console.error("❌ Failed to add project:", error);
+      console.error("🔍 Error details:", error);
+      throw error;
+    }
+  };
+
+ 
+  const addCategory = async (name: string) => {
+    console.log('🚀 Adding category:', name);
+    console.log('👤 Current user:', user ? { uid: user.uid, email: user.email } : 'No user');
+    
+    if (name.trim() === "") return;
+    
+    if (!user?.uid) {
+      console.error('❌ No user UID available');
+      throw new Error('User must be logged in to add categories');
+    }
+    
+    if (isDemoMode()) {
+      console.log('🎭 Demo mode - adding to localStorage');
+      const newCategory: Category = { 
+        id: `demo-cat-${Date.now()}`, 
+        name: name.trim(),
+        userId: user.uid
+      };
+      
+      const updatedCategories = [...categories, newCategory];
+      setCategories(updatedCategories);
+      
+    
+      const currentDemoData = loadDemoData();
+      if (currentDemoData) {
+        const updatedDemoData = {
+          ...currentDemoData,
+          categories: updatedCategories
+        };
+        saveDemoData(updatedDemoData);
+      }
+      
+      console.log('✅ Demo category added:', newCategory.name);
+      return;
+    }
+    
+  
+    try {
+      console.log('🔥 Adding to Firebase...');
+      const categoryWithUserId = { name, userId: user.uid };
+      console.log('📄 Category data to save:', categoryWithUserId);
+      
+      const docRef = await addDoc(categoriesCollection, categoryWithUserId);
+      console.log('✅ Firebase document created with ID:', docRef.id);
+      
+      const newCategory: Category = { id: docRef.id, name, userId: user.uid };
+      setCategories((prev) => {
+        console.log('📊 Previous categories count:', prev.length);
+        const updated = [...prev, newCategory];
+        console.log('📊 Updated categories count:', updated.length);
+        return updated;
+      });
+      
+      console.log('✅ Category added successfully:', newCategory);
+    } catch (error) {
+      console.error("❌ Failed to add category:", error);
+      console.error("🔍 Error details:", error);
       throw error;
     }
   };
@@ -287,7 +404,6 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // MODIFIED LOGOUT FOR DEMO
   const logout = async () => {
     if (isDemoMode()) {
       exitDemo();
@@ -297,6 +413,8 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     try {
       await signOut(auth);
       setUser(null);
+      setProjects([]);
+      setCategories([]);
     } catch (error: any) {
       console.error("Logout error:", error);
       throw new Error(error.message || "Failed to logout");
@@ -312,22 +430,25 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // MODIFIED useEffect FOR DEMO
+  
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      // Check for demo mode first
-      if (isDemoMode()) {
-        const demoData = getDemoData();
-        if (demoData) {
-          setUser(demoData.user);
-          setProjects(demoData.projects);
-          setCategories(demoData.categories);
-          setLoading(false);
-          return;
-        }
+   
+    const isDemoActive = localStorage.getItem('foxly_demo_mode') === 'true';
+    
+    if (isDemoActive) {
+      const demoData = loadDemoData();
+      if (demoData && demoData.user) {
+        setUser(demoData.user);
+        setProjects(demoData.projects || []);
+        setCategories(demoData.categories || []);
+        setLoading(false);
+        console.log('Demo session restored');
+        return;
       }
-      
-      // Regular Firebase auth check
+    }
+
+
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);
     });
@@ -335,42 +456,130 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  // MODIFIED useEffect FOR FETCHING DATA
+
   useEffect(() => {
-    // Skip Firebase fetch if in demo mode
+    console.log('🔍 Data fetch useEffect triggered');
+    console.log('📊 Current state:', {
+      isDemoMode: isDemoMode(),
+      user: user ? { uid: user.uid, email: user.email, isDemo: (user as DemoUser).isDemo } : null,
+      projectsCount: projects.length,
+      categoriesCount: categories.length
+    });
+
+
     if (isDemoMode()) {
+      console.log('⏭️ Skipping fetch - Demo mode active');
+      return;
+    }
+    
+    if (!user) {
+      console.log('⏭️ Skipping fetch - No user');
+      return;
+    }
+    
+    if ((user as DemoUser).isDemo) {
+      console.log('⏭️ Skipping fetch - Demo user detected');
       return;
     }
 
-    async function fetchProjects() {
+   
+    if (!user?.uid) {
+      console.warn('⚠️ User UID is not available, skipping data fetch');
+      return;
+    }
+
+    console.log('🚀 Starting Firebase data fetch for user:', user.uid);
+
+    async function fetchUserProjects() {
+      if (!user?.uid) return; 
+      
       try {
-        const q = query(projectsCollection, orderBy("name", "asc"));
+        console.log('📁 Fetching projects for user:', user.uid);
+        
+      
+        const q = query(
+          projectsCollection, 
+          where("userId", "==", user.uid)
+        );
+        
+        console.log('📝 Executing projects query...');
         const snapshot = await getDocs(q);
+        console.log('📋 Projects query result:', {
+          empty: snapshot.empty,
+          size: snapshot.size,
+          docs: snapshot.docs.length
+        });
+
+        if (!snapshot.empty) {
+          snapshot.docs.forEach((doc, index) => {
+            console.log(`📄 Project ${index + 1}:`, {
+              id: doc.id,
+              data: doc.data()
+            });
+          });
+        }
+
         const projectsData = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...(doc.data() as Omit<Project, "id">),
         })) as Project[];
-        setProjects(projectsData);
+        
+   
+        const sortedProjects = projectsData.sort((a, b) => a.name.localeCompare(b.name));
+        setProjects(sortedProjects);
+        console.log(`✅ Successfully set ${sortedProjects.length} projects for user:`, user.uid);
       } catch (error) {
-        console.error("Failed to fetch projects:", error);
+        console.error("❌ Failed to fetch user projects:", error);
+        console.error("🔍 Error details:", error);
       }
     }
 
-    async function fetchCategories() {
+    async function fetchUserCategories() {
+      if (!user?.uid) return; 
+      
       try {
-        const snapshot = await getDocs(categoriesCollection);
+        console.log('📂 Fetching categories for user:', user.uid);
+        
+     
+        const q = query(
+          categoriesCollection,
+          where("userId", "==", user.uid)
+        );
+        
+        console.log('📝 Executing categories query...');
+        const snapshot = await getDocs(q);
+        console.log('📋 Categories query result:', {
+          empty: snapshot.empty,
+          size: snapshot.size,
+          docs: snapshot.docs.length
+        });
+
+        if (!snapshot.empty) {
+          snapshot.docs.forEach((doc, index) => {
+            console.log(`📄 Category ${index + 1}:`, {
+              id: doc.id,
+              data: doc.data()
+            });
+          });
+        }
+
         const categoriesData = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...(doc.data() as Omit<Category, "id">),
         })) as Category[];
-        setCategories(categoriesData);
+        
+      
+        const sortedCategories = categoriesData.sort((a, b) => a.name.localeCompare(b.name));
+        setCategories(sortedCategories);
+        console.log(`✅ Successfully set ${sortedCategories.length} categories for user:`, user.uid);
       } catch (error) {
-        console.error("Failed to fetch categories:", error);
+        console.error("❌ Failed to fetch user categories:", error);
+        console.error("🔍 Error details:", error);
       }
     }
 
-    fetchProjects();
-    fetchCategories();
+    fetchUserProjects();
+    fetchUserCategories();
 
     function handleResize() {
       if (typeof window !== "undefined") {
@@ -381,29 +590,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // MODIFIED addProject FOR DEMO
-  const addProject = async (project: Omit<Project, "id">) => {
-    if (isDemoMode()) {
-      // For demo mode, just add to local state
-      const newProject = { 
-        ...project, 
-        id: `demo-proj-${Date.now()}` 
-      };
-      setProjects((prev) => [...prev, newProject]);
-      return;
-    }
-    
-    // Regular Firebase logic
-    try {
-      const docRef = await addDoc(projectsCollection, project);
-      setProjects((prev) => [...prev, { ...project, id: docRef.id }]);
-    } catch (error) {
-      console.error("Failed to add project:", error);
-      throw error;
-    }
-  };
+  }, [user]);
 
   return (
     <GlobalContext.Provider
@@ -429,6 +616,8 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
           setopenDropDown,
           activeItemId,
           setActiveItemId,
+          deleteFunction,
+          setDeleteFunction,
         },
         taskwindow: { openNewTaskBox, setOpenNewTaskBox },
         CategoryData: {
@@ -443,7 +632,6 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
           logout,
           resetPassword,
           loading,
-          // ADD DEMO FUNCTIONS TO AUTH OBJECT
           loginDemo,
           isDemoMode,
           getDemoData,
@@ -451,6 +639,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
         },
         projects,
         addProject,
+        setProjects, 
       }}
     >
       {children}

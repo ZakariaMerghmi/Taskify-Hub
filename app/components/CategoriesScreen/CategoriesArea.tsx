@@ -2,70 +2,24 @@ import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useGlobalContext } from "../contextAPI";
 import { faEllipsis, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../../../src/firebase";
-
 
 type Category = {
   id: string;
   name: string;
+  userId?: string;
   [key: string]: any;
 };
 
 export default function CategoriesArea() {
-  const { isdark, CategoryData } = useGlobalContext() as any;
-  const { categories, setCategoryData } = CategoryData;
-
-  const [loading, setLoading] = useState(true);
-
-  const fetchCategories = async () => {
-    try {
-      const snapshot = await getDocs(collection(db, "categories"));
-      const newCategories: Category[] = snapshot.docs.map((doc) => {
-        const data = doc.data() as { name: string; [key: string]: any };
-        return {
-          id: doc.id,
-          ...data,
-          name: data.name,
-        };
-      });
-      
-      setCategoryData(newCategories);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-
-    const handleCategoryAdded = () => {
-      fetchCategories();
-    };
-
-    const handleCategoryDeleted = () => {
-      fetchCategories();
-    };
-
-    
-    window.addEventListener("categoryAdded", handleCategoryAdded);
-    window.addEventListener("categoryDeleted", handleCategoryDeleted);
-    
-    return () => {
-      window.removeEventListener("categoryAdded", handleCategoryAdded);
-      window.removeEventListener("categoryDeleted", handleCategoryDeleted);
-    };
-  }, []);
+  const { isdark, CategoryData, Auth } = useGlobalContext() as any;
+  const { categories } = CategoryData;
+  const { isDemoMode } = Auth;
 
   return (
     <div className={`${isdark ? "bg-gray-900" : "bg-slate-50"} h-[870px] p-4 space-y-3`}>
-      {loading ? (
-        <div className="text-center text-gray-400 text-sm italic mt-10">
-          Loading categories...
-        </div>
-      ) : categories.length === 0 ? (
+      {categories.length === 0 ? (
         <div className="text-center text-gray-400 text-sm italic mt-10">
           No categories yet. Click "Add New" to create one.
         </div>
@@ -74,7 +28,7 @@ export default function CategoriesArea() {
           <CategoryCard
             key={category.id}
             category={category}
-            onRefresh={fetchCategories}
+            isDemoMode={isDemoMode()}
           />
         ))
       )}
@@ -82,15 +36,15 @@ export default function CategoriesArea() {
   );
 }
 
-
 function CategoryCard({
   category,
-  onRefresh,
+  isDemoMode,
 }: {
   category: Category;
-  onRefresh: () => void;
+  isDemoMode: boolean;
 }) {
-  const { isdark } = useGlobalContext() as any;
+  const { isdark, CategoryData } = useGlobalContext() as any;
+  const { categories, setCategoryData } = CategoryData;
   const [showDropdown, setShowDropdown] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -105,25 +59,45 @@ function CategoryCard({
 
   const confirmAndDelete = async () => {
     try {
-      await deleteDoc(doc(db, "categories", category.id));
+      if (isDemoMode) {
+     
+        console.log('🎭 Demo mode - removing category from localStorage');
+        const updatedCategories = categories.filter((cat: Category) => cat.id !== category.id);
+        setCategoryData(updatedCategories);
+        
+    
+        const currentDemoData = JSON.parse(localStorage.getItem('foxly_demo_data') || '{}');
+        if (currentDemoData) {
+          const updatedDemoData = {
+            ...currentDemoData,
+            categories: updatedCategories
+          };
+          localStorage.setItem('foxly_demo_data', JSON.stringify(updatedDemoData));
+        }
+      } else {
+    
+        console.log('🔥 Firebase mode - deleting from Firestore');
+        await deleteDoc(doc(db, "categories", category.id));
+        
+   
+        const updatedCategories = categories.filter((cat: Category) => cat.id !== category.id);
+        setCategoryData(updatedCategories);
+      }
+      
       setShowDropdown(false);
       setConfirmDelete(false);
-      
-   
-      window.dispatchEvent(new CustomEvent('categoryDeleted'));
-      onRefresh();
+      console.log('✅ Category deleted successfully');
     } catch (error) {
-      console.error("Failed to delete category:", error);
+      console.error("❌ Failed to delete category:", error);
     }
   };
 
   const handleEdit = () => {
     console.log("Editing category:", category.id);
     setShowDropdown(false);
-    
+   
   };
 
-  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -146,13 +120,15 @@ function CategoryCard({
     <div
       className={`${
         isdark ? "bg-blue-950 border-slate-700" : "bg-white border-gray-200"
-      } p-4 flex px-16 rounded-md text-[14px] justify-between items-center  relative mb-2 border transition-all hover:shadow-md category-dropdown-container`}
+      } p-4 flex px-16 rounded-md text-[14px] justify-between items-center relative mb-2 border transition-all hover:shadow-md category-dropdown-container`}
     >
       <div className="flex flex-col">
         <span className={`font-semibold ${isdark ? "text-white" : "text-gray-900"}`}>
           {category.name}
         </span>
-        <span className="text-[12px] text-gray-400">Category</span>
+        <span className="text-[12px] text-gray-400">
+          Category {isDemoMode && "• Demo"}
+        </span>
       </div>
 
       <div
@@ -169,7 +145,6 @@ function CategoryCard({
         />
       </div>
 
-    
       {showDropdown && (
         <div className={`absolute top-12 right-4 z-50 w-40 rounded-md shadow-lg border p-2 ${
           isdark 
@@ -192,7 +167,7 @@ function CategoryCard({
               <button
                 onClick={handleDelete}
                 className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left rounded-md transition-colors ${
-                  isdark 
+                  isDemoMode 
                     ? "text-red-400 hover:bg-slate-700" 
                     : "text-red-600 hover:bg-gray-100"
                 }`}
