@@ -71,7 +71,7 @@ const Sidebar = () => {
                     icon={faFeather}
                     className='text-white text-xl font-bold bg-blue-500 p-2 rounded-sm' />
                 <span className='text-2xl font-light select-none'>
-                    <span className='text-blue-500 font-bold'>Taskify</span> Hub
+                    <span className='text-blue-500 font-bold'>Focusly</span> 
                 </span>
             </div>
             
