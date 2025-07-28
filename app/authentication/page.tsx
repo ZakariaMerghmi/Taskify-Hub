@@ -1,4 +1,3 @@
-
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useGlobalContext } from '../components/contextAPI';
@@ -82,6 +81,22 @@ const AuthPage = () => {
     }
   };
 
+  const handleDemoAccess = async () => {
+    setError('');
+    setIsSubmitting(true);
+    
+    try {
+      
+      await Auth.loginDemo();
+      router.push('/');
+    } catch (err: any) {
+      console.error('Demo access error:', err);
+      setError(err.message || 'Demo access temporarily unavailable');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
     setError('');
@@ -104,13 +119,38 @@ const AuthPage = () => {
             icon={faFeather}
             className='text-white text-xl font-bold bg-blue-500 p-2 rounded-sm' />
           <span className='text-2xl font-light'>
-            <span className='text-blue-500 font-bold'>Focusly</span> 
+            <span className='text-blue-500 font-bold'>Foxly</span> 
           </span>
         </div>
 
         <h2 className='text-2xl font-bold mb-6 text-center'>
           {isLogin ? 'Login to your account' : 'Create an account'}
         </h2>
+
+        
+        <div className='mb-6'>
+          <button
+            onClick={handleDemoAccess}
+            disabled={isSubmitting}
+            className={`w-full border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed font-medium py-3 px-4 rounded-md transition-colors flex items-center justify-center mb-4
+              ${isSubmitting ? 'opacity-75' : ''}`}
+          >
+            {isSubmitting ? (
+              <div className='flex items-center gap-2'>
+                <div className='w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin'></div>
+                <span>Accessing Demo...</span>
+              </div>
+            ) : (
+              <span>🚀 Try Demo Access</span>
+            )}
+          </button>
+          
+          <div className='text-center'>
+            <div className={`text-sm ${isdark ? 'text-gray-300' : 'text-gray-500'} mb-2`}>
+              — OR —
+            </div>
+          </div>
+        </div>
 
         {error && (
           <div className='mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm'>

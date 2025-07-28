@@ -26,7 +26,6 @@ import {
   orderBy,
 } from "firebase/firestore";
 
-
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -37,7 +36,42 @@ import {
   sendPasswordResetEmail
 } from "firebase/auth";
 
-
+// ADD DEMO DATA HERE
+const DEMO_DATA = {
+  user: {
+    uid: 'demo-user-123',
+    email: 'demo@focusly.com',
+    displayName: 'Demo User',
+    photoURL: null,
+    isDemo: true
+  },
+  projects: [
+    {
+      id: 'proj-1',
+      name: 'Website Redesign',
+      category: 'Design',
+      icon: 'tachometer-alt'
+    },
+    {
+      id: 'proj-2', 
+      name: 'Mobile App Development',
+      category: 'Development',
+      icon: 'bars-progress'
+    },
+    {
+      id: 'proj-3',
+      name: 'Marketing Campaign Q1',
+      category: 'Marketing',
+      icon: 'layer-group'
+    }
+  ],
+  categories: [
+    { id: 'cat-1', name: 'Design' },
+    { id: 'cat-2', name: 'Development' },
+    { id: 'cat-3', name: 'Marketing' },
+    { id: 'cat-4', name: 'Research' }
+  ]
+};
 
 export interface MenuItem {
   name: string;
@@ -52,6 +86,11 @@ interface AuthContext {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   loading: boolean;
+  // ADD DEMO FUNCTIONS TO INTERFACE
+  loginDemo: () => Promise<void>;
+  isDemoMode: () => boolean;
+  getDemoData: () => any;
+  exitDemo: () => void;
 }
 
 export interface Project {
@@ -66,8 +105,6 @@ export interface Category {
   name: string;
 }
 
-
-
 const iconMap: Record<string, IconDefinition> = {
   "tachometer-alt": faTachometerAlt,
   "bars-progress": faBarsProgress,
@@ -77,8 +114,6 @@ const iconMap: Record<string, IconDefinition> = {
 export function getIconByName(name: string): IconDefinition | undefined {
   return iconMap[name];
 }
-
-
 
 interface GlobalContextType {
   isdark: boolean;
@@ -129,8 +164,6 @@ interface GlobalContextType {
   addProject: (project: Omit<Project, "id">) => Promise<void>;
 }
 
-
-
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
 export function GlobalContextProvider({ children }: { children: ReactNode }) {
@@ -157,9 +190,62 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const projectsCollection = collection(db, "projects");
   const categoriesCollection = collection(db, "categories");
 
-  // Add Category
+  // ADD DEMO FUNCTIONS HERE
+  const loginDemo = async () => {
+    try {
+      setLoading(true);
+      // Store demo session
+      sessionStorage.setItem('demoMode', 'true');
+      sessionStorage.setItem('demoData', JSON.stringify(DEMO_DATA));
+      
+      // Set demo user as current user
+      setUser(DEMO_DATA.user as any);
+      
+      // Set demo projects and categories
+      setProjects(DEMO_DATA.projects);
+      setCategories(DEMO_DATA.categories);
+      
+      console.log('Demo login successful');
+    } catch (error) {
+      console.error('Demo login failed:', error);
+      throw new Error('Demo access temporarily unavailable');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isDemoMode = () => {
+    return sessionStorage.getItem('demoMode') === 'true';
+  };
+
+  const getDemoData = () => {
+    const data = sessionStorage.getItem('demoData');
+    return data ? JSON.parse(data) : null;
+  };
+
+  const exitDemo = () => {
+    sessionStorage.removeItem('demoMode');
+    sessionStorage.removeItem('demoData');
+    setUser(null);
+    setProjects([]);
+    setCategories([]);
+  };
+
+  // Add Category - MODIFIED FOR DEMO
   const addCategory = async (name: string) => {
     if (name.trim() === "") return;
+    
+    if (isDemoMode()) {
+      // For demo mode, just add to local state
+      const newCategory: Category = { 
+        id: `demo-cat-${Date.now()}`, 
+        name 
+      };
+      setCategories((prev) => [...prev, newCategory]);
+      return;
+    }
+    
+    // Regular Firebase logic
     try {
       const docRef = await addDoc(categoriesCollection, { name });
       const newCategory: Category = { id: docRef.id, name };
@@ -170,7 +256,6 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
@@ -189,7 +274,6 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      
       await updateProfile(userCredential.user, {
         displayName: name
       });
@@ -203,7 +287,13 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // MODIFIED LOGOUT FOR DEMO
   const logout = async () => {
+    if (isDemoMode()) {
+      exitDemo();
+      return;
+    }
+    
     try {
       await signOut(auth);
       setUser(null);
@@ -222,18 +312,36 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
   };
 
- 
+  // MODIFIED useEffect FOR DEMO
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      // Check for demo mode first
+      if (isDemoMode()) {
+        const demoData = getDemoData();
+        if (demoData) {
+          setUser(demoData.user);
+          setProjects(demoData.projects);
+          setCategories(demoData.categories);
+          setLoading(false);
+          return;
+        }
+      }
+      
+      // Regular Firebase auth check
+      setUser(firebaseUser);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, []);
 
- 
+  // MODIFIED useEffect FOR FETCHING DATA
   useEffect(() => {
+    // Skip Firebase fetch if in demo mode
+    if (isDemoMode()) {
+      return;
+    }
+
     async function fetchProjects() {
       try {
         const q = query(projectsCollection, orderBy("name", "asc"));
@@ -275,8 +383,19 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
- 
+  // MODIFIED addProject FOR DEMO
   const addProject = async (project: Omit<Project, "id">) => {
+    if (isDemoMode()) {
+      // For demo mode, just add to local state
+      const newProject = { 
+        ...project, 
+        id: `demo-proj-${Date.now()}` 
+      };
+      setProjects((prev) => [...prev, newProject]);
+      return;
+    }
+    
+    // Regular Firebase logic
     try {
       const docRef = await addDoc(projectsCollection, project);
       setProjects((prev) => [...prev, { ...project, id: docRef.id }]);
@@ -323,7 +442,12 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
           signup,
           logout,
           resetPassword,
-          loading
+          loading,
+          // ADD DEMO FUNCTIONS TO AUTH OBJECT
+          loginDemo,
+          isDemoMode,
+          getDemoData,
+          exitDemo
         },
         projects,
         addProject,
@@ -333,8 +457,6 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     </GlobalContext.Provider>
   );
 }
-
-
 
 export function useGlobalContext() {
   const context = useContext(GlobalContext);
