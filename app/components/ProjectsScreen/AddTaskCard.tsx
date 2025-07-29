@@ -132,7 +132,7 @@ export default function AddTaskCard({ selectedProject }: AddTaskCardProps) {
                                 Project
                             </label>
                             <div className={`p-3 rounded-md border ${
-                                isdark ? "bg-blue-900 border-blue-700" : "bg-blue-50 border-blue-200"
+                                isdark ? "bg-orange-900 border-orange-700" : "bg-orange-50 border-orange-200"
                             }`}>
                                 <span className="text-sm font-medium">{selectedProject.name}</span>
                             </div>
@@ -214,7 +214,7 @@ export default function AddTaskCard({ selectedProject }: AddTaskCardProps) {
                             disabled={!taskName.trim() || loading}
                             className={`w-full p-3 rounded-md text-sm transition-colors ${
                                 taskName.trim() && !loading
-                                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                                    ? 'bg-orange-500 hover:bg-orange-600 text-white'
                                     : 'bg-gray-400 cursor-not-allowed text-gray-200'
                             }`}
                         >

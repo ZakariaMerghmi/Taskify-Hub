@@ -94,8 +94,8 @@ export default function IconWindow({ selectedIcon, setSelectedIcon }: IconWindow
                 className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${
                   isSelected 
                     ? isdark 
-                      ? "border-blue-400 bg-blue-900" 
-                      : "border-blue-500 bg-blue-100"
+                      ? "border-orange-400 bg-orange-900" 
+                      : "border-orange-500 bg-orange-100"
                     : isdark 
                       ? "border-gray-600 hover:border-gray-500" 
                       : "border-gray-300 hover:border-gray-400"
@@ -106,8 +106,8 @@ export default function IconWindow({ selectedIcon, setSelectedIcon }: IconWindow
                   icon={faIcon!} 
                   className={`text-xl ${
                     isdark 
-                      ? isSelected ? "text-blue-300" : "text-gray-300" 
-                      : isSelected ? "text-blue-600" : "text-gray-600"
+                      ? isSelected ? "text-orange-300" : "text-gray-300" 
+                      : isSelected ? "text-orange-600" : "text-gray-600"
                   }`} 
                 />
               </div>

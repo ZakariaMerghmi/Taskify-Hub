@@ -84,7 +84,7 @@ export const AddCategoryModal: React.FC = () => {
               disabled={!categoryName.trim()}
               className={`w-full py-3 rounded-md text-white font-medium ${
                 categoryName.trim()
-                  ? "bg-blue-600 hover:bg-blue-700"
+                  ? "bg-orange-600 hover:bg-orange-700"
                   : "bg-gray-400 cursor-not-allowed"
               } transition-colors`}
             >

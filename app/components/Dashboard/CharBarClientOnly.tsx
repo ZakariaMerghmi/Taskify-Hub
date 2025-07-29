@@ -104,7 +104,7 @@ export default function CharBar() {
 
   return (
     <div className={`${
-        isdark ? "bg-blue-950 text-white" : "bg-white text-black"
+        isdark ? "border-slate-700 text-white" : "bg-white text-black"
       } p-4 gap-8 flex flex-col rounded-md py-8`}>
       <div className="text-lg font-semibold ml-5">Daily Progress</div>
       <div className="w-full h-[300px]">
@@ -114,7 +114,8 @@ export default function CharBar() {
             <XAxis dataKey="day" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="tasks" fill="#3B82F6" maxBarSize={60} />
+            <Bar dataKey="tasks" fill="#F97316" maxBarSize={60} />
+
           </BarChart>
         </ResponsiveContainer>
       </div>

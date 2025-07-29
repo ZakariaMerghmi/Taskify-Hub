@@ -24,7 +24,7 @@ const Dashboard = () => {
                 className={`${isdark ? "bg-transparent" : "bg-slate-50"}
                 ${ismobileview ? "flex-col" : "flex-row"} flex`}
             >
-                <div className={`${ismobileview ? "w-full" : "w-full lg:w-8/12"} border-r ${isdark ? "border-gray-700" : "border-gray-200"}`}>
+                <div className={`${ismobileview ? "w-full" : "w-full lg:w-8/12"} border-r ${isdark ? "border-slate-700" : "border-slate-200"}`}>
                     <div className={`${ismobileview ? "p-4" : "p-8"} space-y-8 w-full`}>
                         <div className="space-y-8 w-full">
                             <Statistics />
@@ -76,21 +76,31 @@ function TopBar() {
     };
 
     return (
-        <div className='p-4 md:p-8 md:pt-12 flex items-center justify-between w-full'>
+        <div className={`p-4 md:p-8 md:pt-12 flex items-center justify-between w-full ${isdark ? "bg-slate-900" : "bg-white"} transition-all duration-300`}>
             <div className='flex md:hidden'>
-                <FontAwesomeIcon
+                <button
                     onClick={() => setOpenSidebar(!OpenSidebar)}
-                    height={14}
-                    width={14}
-                    icon={faBars}
-                    className={`${isdark ? "text-white" : "text-gray-800"}`}
-                />
+                    className={`group p-3 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-md ${
+                        isdark 
+                            ? 'text-slate-300 hover:bg-slate-800 hover:text-white' 
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    }`}
+                    aria-label="Toggle sidebar"
+                >
+                    <FontAwesomeIcon
+                        height={16}
+                        width={16}
+                        icon={faBars}
+                        className={`transition-all duration-300 group-hover:text-orange-500 group-hover:scale-110`}
+                    />
+                </button>
             </div>
+            
             <div className='flex flex-col'>
-                <span className='font-bold text-xl md:text-2xl'>
-                    Hello, <span className='font-light'>{firstName}</span>
+                <span className={`font-bold text-xl md:text-2xl bg-gradient-to-r ${isdark ? 'from-white to-gray-300' : 'from-slate-700 to-slate-900'} bg-clip-text text-transparent`}>
+                    Hello, <span className={`font-light ${isdark ? 'text-slate-300' : 'text-slate-600'}`}>{firstName}</span>
                 </span>
-                <span className='text-[12px] font-light'>
+                <span className={`text-[12px] font-light ${isdark ? 'text-slate-400' : 'text-slate-500'}`}>
                     Welcome back!
                 </span>
             </div>
@@ -98,17 +108,22 @@ function TopBar() {
             {searchBar && <SearchBar />}
                                 
             <div className='flex items-center gap-4'>
-               
                 <div className='relative'>
-                    <FontAwesomeIcon
-                        height={20}
-                        width={20}
-                        className={`cursor-pointer transition-all duration-200 hover:scale-110 ${
-                            isdark ? "text-white hover:text-blue-400" : "text-gray-500 hover:text-blue-500"
-                        }`}
-                        icon={searchBar ? faClose : faSearch}
+                    <button
                         onClick={() => setSearchBar(!searchBar)}
-                    />
+                        className={`group p-3 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-md ${
+                            isdark 
+                                ? 'text-slate-300 hover:bg-slate-800 hover:text-white' 
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                        }`}
+                    >
+                        <FontAwesomeIcon
+                            height={18}
+                            width={18}
+                            className={`transition-all duration-300 group-hover:text-orange-500 group-hover:scale-110`}
+                            icon={searchBar ? faClose : faSearch}
+                        />
+                    </button>
                 </div>
                 
                 {/* Logout Button */}
@@ -120,29 +135,30 @@ function TopBar() {
                     <button
                         onClick={handleLogout}
                         disabled={isLoggingOut}
-                        className={`p-2 rounded-full transition-all duration-200 hover:scale-110 ${
+                        className={`group p-3 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-md ${
                             isdark 
-                                ? "hover:bg-red-900/20 text-red-400 hover:text-red-300" 
-                                : "hover:bg-red-50 text-red-500 hover:text-red-600"
+                                ? "hover:bg-red-900/20 text-slate-300 hover:text-red-400" 
+                                : "hover:bg-red-50 text-slate-600 hover:text-red-600"
                         } ${isLoggingOut ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                         <FontAwesomeIcon
                             height={18}
                             width={18}
                             icon={faSignOutAlt}
+                            className="transition-all duration-300 group-hover:scale-110"
                         />
                     </button>
                     
                     {/* Tooltip */}
                     {showLogoutTooltip && (
-                        <div className={`absolute bottom-full right-0 mb-2 px-2 py-1 text-xs rounded whitespace-nowrap ${
+                        <div className={`absolute bottom-full right-0 mb-2 px-3 py-2 text-xs rounded-lg shadow-lg whitespace-nowrap ${
                             isdark 
-                                ? "bg-gray-800 text-white border border-gray-600" 
-                                : "bg-gray-900 text-white"
+                                ? "bg-slate-800 text-slate-200 border border-slate-700" 
+                                : "bg-slate-900 text-white"
                         }`}>
                             {isLoggingOut ? 'Signing out...' : 'Logout'}
-                            <div className={`absolute top-full right-2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent ${
-                                isdark ? "border-t-gray-800" : "border-t-gray-900"
+                            <div className={`absolute top-full right-3 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent ${
+                                isdark ? "border-t-slate-800" : "border-t-slate-900"
                             }`}></div>
                         </div>
                     )}

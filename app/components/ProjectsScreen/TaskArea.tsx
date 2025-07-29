@@ -135,7 +135,7 @@ export default function TaskArea({ selectedProject, onTaskUpdate }: TaskAreaProp
           </h2>
           <button
             onClick={() => setOpenNewTaskBox(true)}
-            className="flex items-center gap-2 text-sm py-2 px-3 rounded-md bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 active:scale-95 transition-all"
+            className="flex items-center gap-2 text-sm py-2 px-3 rounded-md bg-gradient-to-r from-orange-500 to-purple-500 text-white hover:from-orange-600 hover:to-yellow-600 active:scale-95 transition-all"
           >
             <FontAwesomeIcon icon={faPlus} className="text-xs" />
             <span className="hidden md:inline">Add new</span>
@@ -151,7 +151,7 @@ export default function TaskArea({ selectedProject, onTaskUpdate }: TaskAreaProp
             onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
           >
             <span>Sort by:</span>
-            <div className="flex items-center gap-1 text-blue-500 font-medium">
+            <div className="flex items-center gap-1 text-orange-500 font-medium">
               <span className="capitalize">{sortBy === 'createdAt' ? 'Date' : sortBy}</span>
               <FontAwesomeIcon 
                 icon={faChevronDown} 
@@ -168,7 +168,7 @@ export default function TaskArea({ selectedProject, onTaskUpdate }: TaskAreaProp
               <button 
                 onClick={() => handleSortChange('name')}
                 className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
-                  sortBy === 'name' ? 'bg-blue-500 text-white' : ''
+                  sortBy === 'name' ? 'bg-orange-500 text-white' : ''
                 }`}
               >
                 Name
@@ -176,7 +176,7 @@ export default function TaskArea({ selectedProject, onTaskUpdate }: TaskAreaProp
               <button 
                 onClick={() => handleSortChange('priority')}
                 className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
-                  sortBy === 'priority' ? 'bg-blue-500 text-white' : ''
+                  sortBy === 'priority' ? 'bg-orange-500 text-white' : ''
                 } ${isdark ? "hover:bg-slate-700" : "hover:bg-gray-100"}`}
               >
                 Priority
@@ -184,7 +184,7 @@ export default function TaskArea({ selectedProject, onTaskUpdate }: TaskAreaProp
               <button 
                 onClick={() => handleSortChange('createdAt')}
                 className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
-                  sortBy === 'createdAt' ? 'bg-blue-500 text-white' : ''
+                  sortBy === 'createdAt' ? 'bg-orange-500 text-white' : ''
                 } ${isdark ? "hover:bg-slate-700" : "hover:bg-gray-100"}`}
               >
                 Date

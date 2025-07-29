@@ -96,13 +96,13 @@ export default function ProjectWindow({ selectedProject }: ProjectWindowProps) {
             >
                 <div className="p-6 h-[calc(100%-72px)] overflow-y-auto">
                     <div className="space-y-6">
-                        <div className="p-10 py-11 bg-gradient-to-b from-blue-500 to-blue-700 flex items-center justify-between px-5 md:px-10 relative">
+                        <div className="p-10 py-11 bg-gradient-to-b from-orange-500 to-orange-700 flex items-center justify-between px-5 md:px-10 relative">
                             <div className="flex gap-3 items-center">
                                 <div>
                                     <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
                                         <FontAwesomeIcon
                                             icon={faProjectDiagram}
-                                            className="text-blue-500 p-2 mt-1 rounded-full text-sm"
+                                            className="text-orange-500 p-2 mt-1 rounded-full text-sm"
                                         />
                                     </div>
                                 </div>

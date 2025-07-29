@@ -117,9 +117,9 @@ const AuthPage = () => {
         <div className='flex gap-2 items-center justify-center mb-8'>
           <FontAwesomeIcon
             icon={faFeather}
-            className='text-white text-xl font-bold bg-blue-500 p-2 rounded-sm' />
+            className='text-white text-xl font-bold bg-orange-500 p-2 rounded-sm' />
           <span className='text-2xl font-light'>
-            <span className='text-blue-500 font-bold'>Foxly</span> 
+            <span className='text-orange-500 font-bold'>Foxly</span> 
           </span>
         </div>
 
@@ -132,7 +132,7 @@ const AuthPage = () => {
           <button
             onClick={handleDemoAccess}
             disabled={isSubmitting}
-            className={`w-full border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed font-medium py-3 px-4 rounded-md transition-colors flex items-center justify-center mb-4
+            className={`w-full border-2 border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed font-medium py-3 px-4 rounded-md transition-colors flex items-center justify-center mb-4
               ${isSubmitting ? 'opacity-75' : ''}`}
           >
             {isSubmitting ? (
@@ -141,7 +141,7 @@ const AuthPage = () => {
                 <span>Accessing Demo...</span>
               </div>
             ) : (
-              <span>🚀 Try Demo Access</span>
+              <span>🦊 Try Demo Access</span>
             )}
           </button>
           
@@ -171,8 +171,8 @@ const AuthPage = () => {
                 value={formData.name}
                 onChange={handleChange}
                 autoComplete='name'
-                className={`w-full p-3 rounded-md border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors
-                  ${isdark ? 'bg-blue-800 border-blue-700 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                className={`w-full p-3 rounded-md border focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors
+                  ${isdark ? 'bg-orange-800 border-orange-700 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 placeholder='John Doe'
                 required
                 disabled={isSubmitting}
@@ -191,8 +191,8 @@ const AuthPage = () => {
               value={formData.email}
               onChange={handleChange}
               autoComplete='username'
-              className={`w-full p-3 rounded-md border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors
-                ${isdark ? 'bg-blue-800 border-blue-700 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+              className={`w-full p-3 rounded-md border focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors
+                ${isdark ? 'bg-orange-800 border-orange-700 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
               placeholder='name@company.com'
               required
               disabled={isSubmitting}
@@ -211,8 +211,8 @@ const AuthPage = () => {
                 value={formData.password}
                 onChange={handleChange}
                 autoComplete={isLogin ? 'current-password' : 'new-password'}
-                className={`w-full p-3 pr-10 rounded-md border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors
-                  ${isdark ? 'bg-blue-800 border-blue-700 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                className={`w-full p-3 pr-10 rounded-md border focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors
+                  ${isdark ? 'bg-orange-800 border-orange-700 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 placeholder='••••••••'
                 required
                 disabled={isSubmitting}
@@ -236,14 +236,14 @@ const AuthPage = () => {
                   id='remember-me'
                   name='remember-me'
                   type='checkbox'
-                  className='h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500'
+                  className='h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500'
                   disabled={isSubmitting}
                 />
                 <label htmlFor='remember-me' className='ml-2 block text-sm'>
                   Remember me
                 </label>
               </div>
-              <Link href='/forgot-password' className='text-sm text-blue-500 hover:underline'>
+              <Link href='/forgot-password' className='text-sm text-orange-500 hover:underline'>
                 Forgot password?
               </Link>
             </div>
@@ -252,7 +252,7 @@ const AuthPage = () => {
           <button
             type='submit'
             disabled={isSubmitting}
-            className={`w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-md transition-colors flex items-center justify-center
+            className={`w-full bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-md transition-colors flex items-center justify-center
               ${isSubmitting ? 'opacity-75' : ''}`}
           >
             {isSubmitting ? (
@@ -269,7 +269,7 @@ const AuthPage = () => {
         <div className='mt-6 text-center'>
           <button
             onClick={toggleAuthMode}
-            className='text-blue-500 hover:underline'
+            className='text-orange-500 hover:underline'
             disabled={isSubmitting}
           >
             {isLogin ? 'Need an account? Sign up' : 'Already have an account? Sign in'}

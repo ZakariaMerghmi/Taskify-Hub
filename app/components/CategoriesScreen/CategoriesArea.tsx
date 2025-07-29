@@ -119,7 +119,7 @@ function CategoryCard({
   return (
     <div
       className={`${
-        isdark ? "bg-blue-950 border-slate-700" : "bg-white border-gray-200"
+        isdark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200"
       } p-4 flex px-16 rounded-md text-[14px] justify-between items-center relative mb-2 border transition-all hover:shadow-md category-dropdown-container`}
     >
       <div className="flex flex-col">

@@ -22,7 +22,6 @@ export default function Statistics() {
     });
     const { isdark } = useGlobalContext();
 
-  
     const debugTasks = async () => {
         try {
             const tasksSnapshot = await getDocs(collection(db, "tasks"));
@@ -41,7 +40,6 @@ export default function Statistics() {
                 });
             });
             
-          
             const completedByCompleted = tasksSnapshot.docs.filter(doc => doc.data().completed === true).length;
             const completedByStatus = tasksSnapshot.docs.filter(doc => doc.data().status === 'completed').length;
             const completedByIsCompleted = tasksSnapshot.docs.filter(doc => doc.data().isCompleted === true).length;
@@ -55,21 +53,17 @@ export default function Statistics() {
         }
     };
 
-   
     const fetchStatistics = async () => {
         try {
-            
             const projectsSnapshot = await getDocs(collection(db, "projects"));
             const projectsCount = projectsSnapshot.size;
             
-          
             const tasksSnapshot = await getDocs(collection(db, "tasks"));
             const completedTasksCount = tasksSnapshot.docs.filter(doc => {
                 const data = doc.data();
                 return data.completed === true; 
             }).length;
             
-          
             const categoriesSnapshot = await getDocs(collection(db, "categories"));
             const categoriesCount = categoriesSnapshot.size;
 
@@ -92,18 +86,14 @@ export default function Statistics() {
     useEffect(() => {
         fetchStatistics();
         
-      
         const handleStatsUpdate = () => {
             fetchStatistics();
         };
-        
         
         window.addEventListener("taskAdded", handleStatsUpdate);
         window.addEventListener("taskDeleted", handleStatsUpdate);
         window.addEventListener("taskCompleted", handleStatsUpdate);
         window.addEventListener("tasksUpdated", handleStatsUpdate);
-        
-       
         window.addEventListener("projectDeleted", handleStatsUpdate);
         window.addEventListener("projectAdded", handleStatsUpdate);
         window.addEventListener("projectUpdated", handleStatsUpdate);
@@ -150,18 +140,19 @@ export default function Statistics() {
 
     if (currentWidth === 0) {
         return (
-            <div className={`m-5 rounded-lg p-8 flex gap-4 ${
-                isdark ? "bg-blue-950" : "bg-white"
+            <div className={`m-5 rounded-xl p-8 flex gap-4 transition-all duration-300 ${
+                isdark ? "bg-slate-800 border border-slate-700" : "bg-white border border-slate-100 shadow-sm"
             }`}>
                 {statisticsCard.map((singleCard) => (
-                    <div key={singleCard.key} className="flex flex-col items-center justify-center w-full h-full p-4 border rounded-lg shadow-md">
-                        <div className="px-4 p-3 rounded-b-md text-white bg-blue-500 flex items-center w-full gap-12">
+                    <div key={singleCard.key} className="flex flex-col items-center justify-center w-full h-full p-4">
+                        <div className="group relative px-4 p-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white flex items-center w-full gap-12 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-500/25">
+                            <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-orange-500 rounded-xl blur-sm opacity-30 -z-10 group-hover:opacity-40 transition-opacity duration-300"></div>
                             <div className="flex flex-col gap-2">
                                 <span className="font-bold text-3xl">{singleCard.number}</span>
-                                <span className="font-light text-[12px]">{singleCard.text}</span>
+                                <span className="font-light text-[12px] text-orange-100">{singleCard.text}</span>
                             </div>
-                            <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center">
-                                <FontAwesomeIcon icon={singleCard.icon} className="text-blue-500" width={20} height={20} />
+                            <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-all duration-300 group-hover:bg-white/30 group-hover:scale-110">
+                                <FontAwesomeIcon icon={singleCard.icon} className="text-white" width={20} height={20} />
                             </div>    
                         </div>
                     </div>
@@ -171,16 +162,14 @@ export default function Statistics() {
     }
 
     return (
-        <div className={`m-5 rounded-lg p-8 flex gap-4 ${
-            isdark ? "bg-blue-950" : "bg-white"
+        <div className={`m-5 rounded-xl p-8 flex gap-4 transition-all duration-300 ${
+            isdark ? "bg-slate-800 border border-slate-700" : "bg-white border border-slate-100 shadow-sm"
         }`}>
             {statisticsCard.map((singleCard) => (
-                <div key={singleCard.key} className="flex flex-col items-center justify-center w-full h-full p-4 border rounded-lg shadow-md">
+                <div key={singleCard.key} className="flex flex-col items-center justify-center w-full h-full p-4">
                     <Card singleCard={singleCard} currentWidth={currentWidth}/>
                 </div>
             ))}
-           
-        
         </div>
     );
 }
@@ -189,17 +178,18 @@ function Card({ singleCard, currentWidth }: { singleCard: StatisticsCard, curren
     const { text, number, icon } = singleCard;
     
     return (
-        <div className={`px-4 p-3 rounded-b-md text-white bg-blue-500 flex items-center w-full ${
+        <div className={`group relative px-4 p-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white flex items-center w-full transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-500/25 ${
             currentWidth < 1318 ? "gap-6" : "gap-12"
         }`}>
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-orange-500 rounded-xl blur-sm opacity-30 -z-10 group-hover:opacity-40 transition-opacity duration-300"></div>
             <div className={`flex flex-col gap-2 ${currentWidth < 750 ? "items-center" : ""}`}>
                 <span className="font-bold text-3xl">{number}</span>
-                <span className={`font-light text-[12px] ${currentWidth < 750 ? "text-center" : ""}`}>{text}</span>
+                <span className={`font-light text-[12px] text-orange-100 ${currentWidth < 750 ? "text-center" : ""}`}>{text}</span>
             </div>
-            <div className={`h-12 w-12 rounded-full bg-white flex items-center justify-center ${
+            <div className={`h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-all duration-300 group-hover:bg-white/30 group-hover:scale-110 ${
                 currentWidth < 750 ? "hidden" : ""
             }`}>
-                <FontAwesomeIcon icon={icon} className="text-blue-500" width={20} height={20} />
+                <FontAwesomeIcon icon={icon} className="text-white" width={20} height={20} />
             </div>    
         </div>
     );

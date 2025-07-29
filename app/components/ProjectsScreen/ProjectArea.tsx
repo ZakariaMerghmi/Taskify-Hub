@@ -166,7 +166,7 @@ function ProjectCard({
       <div className="flex items-center gap-2">
         <FontAwesomeIcon 
           icon={iconMap[project.icon] ?? faEllipsis} 
-          className="text-blue-500 p-2 rounded-full text-xs"
+          className="text-orange-500 p-2 rounded-full text-xs"
         />
         <span 
           onClick={(e) => handleAction(e, 'open')}
@@ -199,8 +199,8 @@ function ProjectCard({
                 key={index} 
                 className={`px-3 py-1 rounded-full text-xs font-medium ${
                   isdark 
-                    ? "bg-blue-900 text-blue-200 border border-blue-700" 
-                    : "bg-blue-50 text-blue-700 border border-blue-200"
+                    ? "bg-orange-900 text-orange-200 border border-orange-700" 
+                    : "bg-orange-50 text-orange-600 border border-orange-200"
                 }`}
               >
                 {cat}
@@ -238,7 +238,7 @@ function ProjectCard({
           isdark ? "bg-slate-600" : "bg-gray-200"
         }`}>
           <div 
-            className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300" 
+            className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-300" 
             style={{ width: `${percent}%` }}
           ></div>
         </div>
@@ -249,14 +249,14 @@ function ProjectCard({
         </div>
       </div>
 
-      
+      {/* Cool Delete Button */}
       <button
         onClick={handleDeleteClick}
         className={`mt-2 p-2 rounded-lg transition-all duration-200 flex items-center justify-center gap-2
         hover:scale-105 active:scale-95 ${
           isdark 
-            ? "bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-800 hover:border-red-600" 
-            : "bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 hover:border-red-300"
+            ? "bg-orange-900/20 hover:bg-orange-900/40 text-orange-400 border border-orange-800 hover:border-orange-600" 
+            : "bg-orange-50 hover:bg-orange-100 text-orange-600 border border-orange-200 hover:border-orange-300"
         }`}
       >
         <FontAwesomeIcon icon={faTrash} className="text-sm" />

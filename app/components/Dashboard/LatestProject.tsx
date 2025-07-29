@@ -125,7 +125,7 @@ export default function RightSidebar() {
   }, []);
 
   return (
-    <div className={`${isdark ? "bg-blue-950" : "bg-white"}
+    <div className={`${isdark ? "bg-slate-800" : "bg-white"}
       p-4 flex gap-8 flex-col rounded-md py-8`}>
       <span className="font-semibold text-center text-lg">Latest Projects</span>
       <div>
